@@ -25,10 +25,11 @@ interface Rgb {
 
 export interface ElementBackdropPalette {
   canvas: string;
-  canvasMuted: string;
-  overlay: string;
-  orbPrimary: string;
-  orbSecondary: string;
+  gradientStart: string;
+  gradientMid: string;
+  gradientEnd: string;
+  washStart: string;
+  washEnd: string;
   divider: string;
 }
 
@@ -959,31 +960,40 @@ export function getElementBackdropPalette(
   if (!accent) {
     return {
       canvas: theme.colors.canvas,
-      canvasMuted: theme.colors.canvasMuted,
-      overlay: theme.colors.surfaceOverlay,
-      orbPrimary: theme.colors.accentGlow,
-      orbSecondary: theme.colors.surfaceOverlay,
+      gradientStart:
+        theme.mode === 'dark'
+          ? mixHex(theme.colors.canvas, theme.colors.accent, 0.06)
+          : mixHex(theme.colors.surfaceElevated, theme.colors.accent, 0.025),
+      gradientMid: theme.colors.canvas,
+      gradientEnd:
+        theme.mode === 'dark'
+          ? mixHex(theme.colors.canvasDeep, theme.colors.accent, 0.12)
+          : mixHex(theme.colors.canvasMuted, theme.colors.accentStrong, 0.035),
+      washStart: theme.mode === 'dark' ? withAlpha(theme.colors.accent, 0.08) : withAlpha(theme.colors.accent, 0.06),
+      washEnd: withAlpha(theme.colors.accent, 0),
       divider: theme.colors.divider,
     };
   }
 
   if (theme.mode === 'dark') {
     return {
-      canvas: mixHex(theme.colors.canvas, accent.accent, 0.1),
-      canvasMuted: mixHex(theme.colors.canvasMuted, accent.accent, 0.12),
-      overlay: withAlpha(accent.accent, 0.06),
-      orbPrimary: withAlpha(accent.accent, 0.16),
-      orbSecondary: withAlpha(accent.accent, 0.08),
+      canvas: mixHex(theme.colors.canvas, accent.accent, 0.08),
+      gradientStart: mixHex(theme.colors.canvas, accent.accentStrong, 0.12),
+      gradientMid: mixHex(theme.colors.canvasMuted, accent.accent, 0.08),
+      gradientEnd: mixHex(theme.colors.canvasDeep, accent.accent, 0.16),
+      washStart: withAlpha(accent.accent, 0.12),
+      washEnd: withAlpha(accent.accent, 0),
       divider: withAlpha(accent.accent, 0.22),
     };
   }
 
   return {
-    canvas: mixHex(theme.colors.canvas, accent.accent, 0.08),
-    canvasMuted: mixHex(theme.colors.canvasMuted, accent.accent, 0.1),
-    overlay: withAlpha(accent.accent, 0.045),
-    orbPrimary: withAlpha(accent.accent, 0.16),
-    orbSecondary: withAlpha(accent.accent, 0.06),
+    canvas: mixHex(theme.colors.canvas, accent.accent, 0.05),
+    gradientStart: mixHex(theme.colors.surfaceElevated, accent.accent, 0.08),
+    gradientMid: mixHex(theme.colors.canvas, accent.accent, 0.05),
+    gradientEnd: mixHex(theme.colors.canvasMuted, accent.accentStrong, 0.09),
+    washStart: withAlpha(accent.accent, 0.08),
+    washEnd: withAlpha(accent.accent, 0),
     divider: withAlpha(accent.accent, 0.18),
   };
 }

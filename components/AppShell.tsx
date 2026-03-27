@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import Svg, { Defs, LinearGradient as SvgLinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useBreakpoints } from '@/hooks/use-breakpoints';
@@ -25,39 +26,31 @@ export function AppShell({ children, hero, breadcrumbs, accent }: AppShellProps)
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: backdrop.canvas }}>
       <View style={{ flex: 1, backgroundColor: backdrop.canvas }}>
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            backgroundColor: backdrop.overlay,
-          }}
-        />
-        <View
-          style={{
-            position: 'absolute',
-            top: 24,
-            right: -70,
-            width: 260,
-            height: 260,
-            borderRadius: 130,
-            backgroundColor: backdrop.orbPrimary,
-            opacity: theme.mode === 'dark' ? 0.9 : 1,
-          }}
-        />
-        <View
-          style={{
-            position: 'absolute',
-            top: 180,
-            left: -52,
-            width: 180,
-            height: 180,
-            borderRadius: 90,
-            backgroundColor: backdrop.orbSecondary,
-          }}
-        />
+        <Svg
+          pointerEvents="none"
+          style={StyleSheet.absoluteFillObject}
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none">
+          <Defs>
+            <SvgLinearGradient id="shell-base-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <Stop offset="0%" stopColor={backdrop.gradientStart} />
+              <Stop offset="48%" stopColor={backdrop.gradientMid} />
+              <Stop offset="100%" stopColor={backdrop.gradientEnd} />
+            </SvgLinearGradient>
+            <SvgLinearGradient id="shell-wash-gradient" x1="100%" y1="0%" x2="12%" y2="82%">
+              <Stop offset="0%" stopColor={backdrop.washStart} />
+              <Stop offset="100%" stopColor={backdrop.washEnd} />
+            </SvgLinearGradient>
+            <SvgLinearGradient id="shell-depth-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor={theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.24)'} />
+              <Stop offset="30%" stopColor="rgba(255,255,255,0)" />
+              <Stop offset="100%" stopColor={theme.mode === 'dark' ? 'rgba(4,11,19,0.12)' : 'rgba(16,34,56,0.04)'} />
+            </SvgLinearGradient>
+          </Defs>
+          <Rect x="0" y="0" width="100" height="100" fill="url(#shell-base-gradient)" />
+          <Rect x="0" y="0" width="100" height="100" fill="url(#shell-wash-gradient)" />
+          <Rect x="0" y="0" width="100" height="100" fill="url(#shell-depth-gradient)" />
+        </Svg>
         <View
           style={{
             position: 'absolute',
