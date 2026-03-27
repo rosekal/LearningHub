@@ -1,0 +1,1130 @@
+import type { ElementSeed } from '@/content/subjects/chemistry/elementSeeds';
+import {
+  appliedSection,
+  classificationSection,
+  electronicSection,
+  isotopeSection,
+  occurrenceSection,
+  physicalSection,
+  productionSection,
+  reactivitySection,
+  term,
+  type FactSet,
+} from '@/content/subjects/chemistry/seedFactories';
+
+function facts(a: string, b: string, c: string, d: string, e: string): FactSet {
+  return [a, b, c, d, e];
+}
+
+export const additionalChemistryElementSeeds: ElementSeed[] = [
+  {
+    id: 'sodium',
+    name: 'Sodium',
+    symbol: 'Na',
+    atomicNumber: 11,
+    atomicMass: '22.98976928',
+    group: '1',
+    period: '3',
+    block: 's',
+    category: 'Alkali metal',
+    roomState: 'Solid',
+    electronConfiguration: '[Ne]3s1',
+    oxidationStates: '+1',
+    summaryLine:
+      'Sodium is a soft alkali metal whose dominant Na+ ion underlies salts, aqueous electrolytes, chemical reductions, and large-scale inorganic industry.',
+    importanceLine:
+      'Its chemistry links periodic trends to electrochemistry, seawater chemistry, biological ion balance, and bulk commodity manufacture.',
+    heroFacts: [
+      'Classic alkali metal',
+      'Na+ dominates saline waters',
+      'Soft metal stored under oil',
+      'Produced in Downs cells',
+    ],
+    glossaryExtras: [
+      term('Halite', 'Rock salt, the mineral form of sodium chloride and a major sodium feedstock.'),
+      term('Downs cell', 'An electrolytic cell used to produce metallic sodium from molten sodium chloride.'),
+      term('Soda ash', 'Industrial sodium carbonate, an important sodium compound used in glass and chemical manufacture.'),
+    ],
+    sections: {
+      classification: classificationSection(
+        'Sodium',
+        facts(
+          'an alkali metal with one 3s valence electron',
+          'group 1, period 3, s-block',
+          '[Ne]3s1',
+          'it readily loses its 3s electron to form Na+ and strongly ionic compounds',
+          'it behaves as a textbook group-1 metal and is far more uniformly metallic than hydrogen'
+        )
+      ),
+      electronic: electronicSection(
+        'Sodium',
+        facts(
+          'a [Ne]3s1 valence shell',
+          'it forms strongly ionic bonds and is stabilized overwhelmingly as Na+ in ordinary chemistry',
+          '+1 in virtually all common compounds',
+          'NaCl, Na2O, and hydrated Na+ ions in water and biological fluids',
+          'low ionization energy and low charge density make directional covalent bonding relatively unimportant'
+        )
+      ),
+      physical: physicalSection(
+        'Sodium',
+        facts(
+          'a soft, silvery, low-density metallic solid',
+          'it can be cut easily and melts at relatively low temperature for a metal',
+          'metallic bonding in a body-centered-cubic alkali-metal lattice gives softness and good conductivity',
+          'freshly cut sodium that rapidly tarnishes and molten sodium used as a heat-transfer fluid',
+          'samples must be protected from moist air and are commonly stored under oil or inert atmosphere'
+        )
+      ),
+      reactivity: reactivitySection(
+        'Sodium',
+        facts(
+          'a very reactive reducing metal that is oxidized by air and attacked vigorously by water',
+          'it reacts with water to form sodium hydroxide and hydrogen and with halogens to form ionic salts',
+          'formation of stable Na+ and strong lattice or hydration energies drives much of its chemistry',
+          'oxides, hydroxides, halides, alkoxides, and organosodium reagents',
+          'bulk metal can ignite or explode under the wrong conditions and should never be handled near uncontrolled moisture'
+        )
+      ),
+      occurrence: occurrenceSection(
+        'Sodium',
+        facts(
+          'halite, evaporite deposits, seawater ions, and silicate minerals',
+          'it is abundant in Earth crust and especially important in the oceans',
+          'seawater, rock salt, brines, feldspars, and related aluminosilicates are major reservoirs',
+          'the stability and solubility of Na+ make it a dominant participant in aqueous geochemistry',
+          'native sodium metal is absent because the element reacts too readily to persist in free form'
+        )
+      ),
+      isotopes: isotopeSection(
+        'Sodium',
+        facts(
+          'sodium-23 together with the radioisotopes sodium-22 and sodium-24',
+          'sodium-23 is the only naturally abundant stable isotope, whereas sodium-22 and sodium-24 are radioactive',
+          'radioisotopes of sodium are useful in tracer work, activation analysis, and calibration',
+          'sodium-22 is used in positron-related instrumentation and sodium-24 is useful in flow and activation studies',
+          'practical isotope work centers on radioisotopes rather than subtle stable-isotope fractionation'
+        )
+      ),
+      production: productionSection(
+        'Sodium',
+        facts(
+          'electrolysis of molten sodium chloride in the Downs process',
+          'sodium metal must be produced in water-free molten systems because Na+ is too stable to reduce from aqueous solution',
+          'industrial sodium compounds are also made from brines, soda ash routes, and chlor-alkali feedstocks',
+          'feed drying, molten-salt control, and separation of sodium from chlorine are critical processing steps',
+          'safe production and transport require strict exclusion of water and tight control of heat and air exposure'
+        )
+      ),
+      applied: appliedSection(
+        'Sodium',
+        facts(
+          'chemical reduction, sodium-vapor lighting, heat transfer, and manufacture of sodium compounds',
+          'sodium chloride, sodium hydroxide, sodium carbonate, and organosodium reagents',
+          'Na+ is the major extracellular cation in biology and is central to osmotic balance and nerve signaling',
+          'Humphry Davy isolated sodium by electrolysis, helping establish electrochemistry and the metallic nature of alkali elements',
+          'hazards center on violent water reactivity, caustic products, fire, and the need for dry storage'
+        )
+      ),
+    },
+  },
+  {
+    id: 'magnesium',
+    name: 'Magnesium',
+    symbol: 'Mg',
+    atomicNumber: 12,
+    atomicMass: '24.305',
+    group: '2',
+    period: '3',
+    block: 's',
+    category: 'Alkaline earth metal',
+    roomState: 'Solid',
+    electronConfiguration: '[Ne]3s2',
+    oxidationStates: '+2',
+    summaryLine:
+      'Magnesium is a light alkaline-earth metal whose stable Mg2+ ion and low density make it central to alloys, minerals, organometallic reagents, and biology.',
+    importanceLine:
+      'Its chemistry connects group-2 trends to structural metals, chlorophyll biochemistry, and synthetic methods such as Grignard chemistry.',
+    heroFacts: [
+      'Light structural metal',
+      'Mg2+ stabilizes ATP chemistry',
+      'Burns with brilliant white light',
+      'Recovered from brines and minerals',
+    ],
+    glossaryExtras: [
+      term('Grignard reagent', 'An organomagnesium halide used as a strongly nucleophilic carbon-transfer reagent.'),
+      term('Dolomite', 'A calcium-magnesium carbonate mineral that serves as a major magnesium source.'),
+      term('Passivation', 'The slowing of corrosion by formation of a thin protective surface film.'),
+    ],
+    sections: {
+      classification: classificationSection(
+        'Magnesium',
+        facts(
+          'an alkaline earth metal with a filled 3s pair',
+          'group 2, period 3, s-block',
+          '[Ne]3s2',
+          'it forms Mg2+ readily and shows stronger polarizing power than the heavier alkaline-earth metals',
+          'its chemistry is more ionic than aluminum or silicon but less violently reactive than sodium'
+        )
+      ),
+      electronic: electronicSection(
+        'Magnesium',
+        facts(
+          'a [Ne]3s2 valence shell',
+          'it usually forms Mg2+ and strongly ionic salts, though organomagnesium reagents are highly polarized and reactive',
+          '+2 in ordinary compounds',
+          'MgO, MgCl2, hydrated Mg2+, and organomagnesium halides such as RMgX',
+          'the small doubly charged cation produces strong hydration and lattice effects that shape solubility and reactivity'
+        )
+      ),
+      physical: physicalSection(
+        'Magnesium',
+        facts(
+          'a silvery, low-density metallic solid',
+          'it is notably light for a structural metal and emits an intense white light when burning',
+          'close-packed metallic structure gives low density with useful specific strength in alloys',
+          'magnesium ribbon, cast magnesium alloys, and finely divided magnesium powder',
+          'surface oxide slows everyday corrosion, but fine metal can ignite and requires dry-fire precautions'
+        )
+      ),
+      reactivity: reactivitySection(
+        'Magnesium',
+        facts(
+          'a moderately reactive reducing metal partly protected by a surface oxide',
+          'it reacts readily with acids, burns in oxygen, and reacts with steam or hot water more readily than with cold water',
+          'formation of stable MgO and Mg2+ drives many reactions while passivation slows others',
+          'oxides, hydroxides, halides, organomagnesium reagents, and metallothermic reduction systems',
+          'burning magnesium should not be treated with water or ordinary carbon-dioxide extinguishers'
+        )
+      ),
+      occurrence: occurrenceSection(
+        'Magnesium',
+        facts(
+          'dolomite, magnesite, seawater ions, brines, and silicate minerals',
+          'it is abundant in crustal minerals and one of the major cations dissolved in seawater',
+          'carbonate rocks, evaporitic brines, and biological coordination sites such as chlorophyll are key reservoirs',
+          'strong hydration of Mg2+ makes it persistent in aqueous geochemistry and biologically useful in phosphate chemistry',
+          'native magnesium is absent because the metal oxidizes too readily under natural conditions'
+        )
+      ),
+      isotopes: isotopeSection(
+        'Magnesium',
+        facts(
+          'magnesium-24, magnesium-25, and magnesium-26',
+          'all three are stable, with magnesium-24 most abundant and magnesium-25 NMR-active',
+          'magnesium isotope ratios can record fractionation in geochemistry, biology, and planetary materials',
+          'stable-isotope studies and 25Mg NMR are useful in geochemistry, biochemistry, and materials research',
+          'most isotope work concerns subtle stable-isotope variation rather than radiological hazard'
+        )
+      ),
+      production: productionSection(
+        'Magnesium',
+        facts(
+          'electrolysis of molten magnesium chloride from brines or seawater and thermal reduction routes such as the Pidgeon process',
+          'magnesium is produced by energy-intensive reduction because Mg2+ is too stable to obtain from water directly',
+          'calcined dolomite followed by high-temperature reduction provides an important alternative feed route',
+          'drying feedstocks thoroughly and controlling chloride, oxide, and moisture impurities are essential for efficient recovery',
+          'economics depend strongly on electricity cost, reductant efficiency, and corrosion-resistant process equipment'
+        )
+      ),
+      applied: appliedSection(
+        'Magnesium',
+        facts(
+          'lightweight alloys, sacrificial anodes, pyrotechnics, and organomagnesium synthesis',
+          'magnesium alloys, magnesium oxide, magnesium chloride, and Grignard reagents',
+          'Mg2+ is essential in biology because it stabilizes ATP chemistry and sits at the center of chlorophyll',
+          'magnesium isolation and later alloy development made it important to modern light-metal metallurgy',
+          'hazards center on combustible fine metal, brilliant burning particles, and dry handling during high-temperature use'
+        )
+      ),
+    },
+  },
+  {
+    id: 'aluminum',
+    name: 'Aluminum',
+    symbol: 'Al',
+    atomicNumber: 13,
+    atomicMass: '26.9815385',
+    group: '13',
+    period: '3',
+    block: 'p',
+    category: 'Post-transition metal',
+    roomState: 'Solid',
+    electronConfiguration: '[Ne]3s2 3p1',
+    oxidationStates: '+3',
+    summaryLine:
+      'Aluminum is a light, abundant metal whose stable oxide film, high specific strength, and Al3+ chemistry make it central to materials, packaging, and industrial electrochemistry.',
+    importanceLine:
+      'Its chemistry links main-group bonding, amphoterism, and oxide passivation to one of the world’s most important engineered metals.',
+    heroFacts: [
+      'Lightweight structural metal',
+      'Protected by oxide passivation',
+      'Produced by Hall-Heroult electrolysis',
+      'Derived mainly from bauxite',
+    ],
+    glossaryExtras: [
+      term('Bauxite', 'The principal ore of aluminum, rich in hydrated aluminum oxides and hydroxides.'),
+      term('Cryolite', 'A fluoride melt used to dissolve alumina in the Hall-Heroult aluminum process.'),
+      term('Amphoteric oxide', 'An oxide able to react with both acids and strong bases, as aluminum oxide does.'),
+    ],
+    sections: {
+      classification: classificationSection(
+        'Aluminum',
+        facts(
+          'a group-13 main-group metal often described as a post-transition metal',
+          'group 13, period 3, p-block',
+          '[Ne]3s2 3p1',
+          'it commonly forms Al3+ and a strongly oxide-seeking chemistry dominated by high charge density',
+          'its behavior is more covalent and more polarizing than the simple s-block metals that precede it'
+        )
+      ),
+      electronic: electronicSection(
+        'Aluminum',
+        facts(
+          'a [Ne]3s2 3p1 valence arrangement',
+          'it forms compounds that range from strongly ionic to markedly covalent because Al3+ is small and highly polarizing',
+          '+3 in ordinary compounds',
+          'Al2O3, AlCl3, tetrahedral aluminosilicates, and hexaaqua aluminum species in solution',
+          'electron deficiency and Lewis acidity are recurring themes in aluminum chemistry'
+        )
+      ),
+      physical: physicalSection(
+        'Aluminum',
+        facts(
+          'a light, silvery, conductive metallic solid',
+          'it combines low density with good thermal and electrical conductivity and high formability',
+          'face-centered-cubic metallic bonding supports ductility while a thin oxide film protects the surface',
+          'foil, structural alloys, beverage cans, and highly conductive electrical components',
+          'surface passivation gives excellent corrosion resistance, though powders and molten metal require more careful handling'
+        )
+      ),
+      reactivity: reactivitySection(
+        'Aluminum',
+        facts(
+          'a reactive metal whose ordinary behavior is moderated strongly by a protective oxide film',
+          'fresh aluminum reacts readily with oxygen and halogens, while bulk metal is protected unless oxide is disrupted or conditions are strongly acidic or basic',
+          'formation of stable Al2O3 drives oxidation and the amphoteric character of many aluminum compounds',
+          'oxides, hydroxides, halides, aluminosilicates, and aluminates in strongly basic media',
+          'removing the oxide layer or exposing fine aluminum powder can create fire, corrosion, or hydrogen-generation hazards'
+        )
+      ),
+      occurrence: occurrenceSection(
+        'Aluminum',
+        facts(
+          'bauxite, feldspars, clays, and aluminosilicate minerals',
+          'it is one of the most abundant elements in Earth crust but is never found as free metal naturally',
+          'oxide and aluminosilicate minerals form the dominant crustal reservoirs',
+          'strong oxygen affinity ensures that aluminum is locked into minerals rather than moving freely as elemental material',
+          'the great abundance of aluminum does not translate to easy extraction because its oxide is chemically very stable'
+        )
+      ),
+      isotopes: isotopeSection(
+        'Aluminum',
+        facts(
+          'stable aluminum-27 together with the cosmochemically important radioisotope aluminum-26',
+          'aluminum-27 is the only stable isotope, while aluminum-26 is radioactive and important in early solar-system studies',
+          'aluminum isotopes help trace cosmochemical history, sediment processes, and environmental transport',
+          'aluminum-26 is important in astrophysics and meteoritics, and aluminum radioisotopes are used in tracing studies',
+          'ordinary chemical work involves stable aluminum, whereas isotope work is specialized and often radiometric'
+        )
+      ),
+      production: productionSection(
+        'Aluminum',
+        facts(
+          'electrolysis of alumina dissolved in molten cryolite in the Hall-Heroult process',
+          'direct chemical reduction of alumina is difficult, so large-scale electrolysis dominates primary metal production',
+          'the Bayer process for refining bauxite to alumina is an essential upstream step before smelting',
+          'purity control depends on ore refining, electrolyte management, and removal of iron, silicon, and other impurities',
+          'aluminum production is electricity-intensive and therefore tightly coupled to energy economics and carbon footprint'
+        )
+      ),
+      applied: appliedSection(
+        'Aluminum',
+        facts(
+          'transport alloys, construction materials, packaging, and electrical conductors',
+          'aluminum alloys, alumina, aluminum chloride, and aluminosilicate materials',
+          'its low density, corrosion resistance, and recyclability make aluminum environmentally and economically important',
+          'the Hall-Heroult and Bayer processes transformed aluminum from a precious metal into a mass structural material',
+          'hazards are generally low for bulk metal but increase for fine powders, molten metal, and highly caustic or acidic processing environments'
+        )
+      ),
+    },
+  },
+  {
+    id: 'silicon',
+    name: 'Silicon',
+    symbol: 'Si',
+    atomicNumber: 14,
+    atomicMass: '28.085',
+    group: '14',
+    period: '3',
+    block: 'p',
+    category: 'Metalloid',
+    roomState: 'Solid',
+    electronConfiguration: '[Ne]3s2 3p2',
+    oxidationStates: '-4, +4',
+    summaryLine:
+      'Silicon is a covalent metalloid whose network structures, oxide chemistry, and semiconducting behavior make it central to minerals, electronics, and modern materials.',
+    importanceLine:
+      'Its chemistry connects group-14 bonding to Earth-crust mineralogy, glass and ceramic technology, and the physics of semiconductors.',
+    heroFacts: [
+      'Metalloid and semiconductor',
+      'Second-most abundant crustal element',
+      'Forms silica and silicates',
+      'Basis of modern microelectronics',
+    ],
+    glossaryExtras: [
+      term('Silica', 'Silicon dioxide, a major silicon oxide appearing in quartz, glass, and many materials.'),
+      term('Silicate', 'A mineral or material built from silicon-oxygen tetrahedra linked in various structural patterns.'),
+      term('Semiconductor', 'A material with conductivity between that of insulators and metals, often controlled by doping.'),
+    ],
+    sections: {
+      classification: classificationSection(
+        'Silicon',
+        facts(
+          'a group-14 metalloid with strongly covalent bonding tendencies',
+          'group 14, period 3, p-block',
+          '[Ne]3s2 3p2',
+          'it can form four directional bonds and sits between metallic and nonmetallic behavior in the periodic table',
+          'its chemistry resembles carbon in valence count but differs because larger size favors strong Si-O frameworks over multiple bonding'
+        )
+      ),
+      electronic: electronicSection(
+        'Silicon',
+        facts(
+          'a [Ne]3s2 3p2 valence arrangement',
+          'it usually forms directional covalent bonds in tetrahedral networks or molecular chlorides and hydrides',
+          '-4 and +4, with +4 dominant in oxides and halides',
+          'diamond-cubic elemental silicon, SiO2 networks, silicates, and tetrahalides such as SiCl4',
+          'orbital size and weaker p-p overlap than carbon make extended network formation more favorable than strong multiple bonding'
+        )
+      ),
+      physical: physicalSection(
+        'Silicon',
+        facts(
+          'a hard, brittle, blue-gray solid with semiconducting properties',
+          'its electrical conductivity is highly sensitive to temperature, purity, and controlled doping',
+          'a diamond-like covalent network produces hardness, brittleness, and semiconducting electronic bands',
+          'quartz-derived materials, polycrystalline silicon, and single-crystal wafers',
+          'high-purity handling focuses on contamination control rather than simple corrosion or low-temperature volatility'
+        )
+      ),
+      reactivity: reactivitySection(
+        'Silicon',
+        facts(
+          'a relatively unreactive elemental solid at room temperature but highly important in oxide and halide chemistry',
+          'it reacts with oxygen at elevated temperature, with halogens under suitable conditions, and is attacked effectively by fluoride-containing media',
+          'strong Si-O bond formation drives much of its thermodynamic behavior',
+          'silica, silicates, chlorosilanes, silanes, and silicon carbide-related reaction systems',
+          'hydrofluoric-acid-based etching systems and reactive silanes require particularly careful handling'
+        )
+      ),
+      occurrence: occurrenceSection(
+        'Silicon',
+        facts(
+          'silica and silicate minerals throughout Earth crust',
+          'it is one of the most abundant crustal elements and is vastly more common in combined form than as native silicon',
+          'quartz, feldspars, clays, and rock-forming silicates are the dominant reservoirs',
+          'silicon is fundamental to crustal mineral structure because tetrahedral Si-O bonding supports many framework and chain minerals',
+          'free elemental silicon is rare in nature because silicon is strongly stabilized by oxygen'
+        )
+      ),
+      isotopes: isotopeSection(
+        'Silicon',
+        facts(
+          'silicon-28, silicon-29, and silicon-30',
+          'all three are stable, with silicon-28 the most abundant and silicon-29 NMR-active',
+          'silicon isotope ratios can trace geochemical cycling, biological uptake, and planetary materials',
+          '29Si NMR and stable-isotope studies are important in materials, geochemistry, and biosilicification research',
+          'isotopic work is analytically important even though silicon presents little radiological concern in ordinary chemistry'
+        )
+      ),
+      production: productionSection(
+        'Silicon',
+        facts(
+          'carbothermic reduction of silica in electric furnaces followed by purification when higher purity is needed',
+          'metallurgical silicon is obtained at high temperature because silica is extremely stable and difficult to reduce cleanly',
+          'electronic-grade material is produced through chlorosilane chemistry and high-purity deposition routes such as the Siemens process',
+          'control of carbon, oxygen, boron, phosphorus, and metallic impurities is essential for semiconductor applications',
+          'the highest-value silicon supply chains are defined more by purity than by simple tonnage'
+        )
+      ),
+      applied: appliedSection(
+        'Silicon',
+        facts(
+          'semiconductor devices, photovoltaics, silicones, glass, ceramics, and alloying',
+          'silica, silicates, silicon wafers, silicones, silicon carbide, and chlorosilanes',
+          'silicon underpins both Earth mineralogy and modern information technology',
+          'the rise of transistor and integrated-circuit technology made silicon one of the most influential elements in modern science and engineering',
+          'hazards often belong to specific compounds such as chlorosilanes, silane gas, or respirable silica rather than to inert bulk silicon itself'
+        )
+      ),
+    },
+  },
+  {
+    id: 'phosphorus',
+    name: 'Phosphorus',
+    symbol: 'P',
+    atomicNumber: 15,
+    atomicMass: '30.973761998',
+    group: '15',
+    period: '3',
+    block: 'p',
+    category: 'Reactive nonmetal',
+    roomState: 'Solid',
+    electronConfiguration: '[Ne]3s2 3p3',
+    oxidationStates: '-3, +3, +5',
+    summaryLine:
+      'Phosphorus is a reactive nonmetal whose allotropes, oxoacids, phosphates, and reduced compounds make it central to fertilizers, biochemistry, and energetic chemistry.',
+    importanceLine:
+      'Its chemistry bridges covalent bonding, biological energy transfer, mineral resources, and the management of reactive and toxic allotropes.',
+    heroFacts: [
+      'Pnictogen nonmetal',
+      'Forms white, red, and black allotropes',
+      'Essential in DNA and ATP chemistry',
+      'Recovered from phosphate rock',
+    ],
+    glossaryExtras: [
+      term('Allotrope', 'Different structural forms of the same element, such as white and red phosphorus.'),
+      term('Phosphate', 'A tetrahedral PO4-based anion family central to minerals, fertilizers, and biochemistry.'),
+      term('Apatite', 'A major phosphate mineral group that serves as the principal phosphorus ore source.'),
+    ],
+    sections: {
+      classification: classificationSection(
+        'Phosphorus',
+        facts(
+          'a group-15 reactive nonmetal with strong covalent bonding tendencies',
+          'group 15, period 3, p-block',
+          '[Ne]3s2 3p3',
+          'it can form three or five covalent bonds and shows both reduced and oxidized chemistry',
+          'it is more structurally varied and more chemically reactive in elemental form than nitrogen'
+        )
+      ),
+      electronic: electronicSection(
+        'Phosphorus',
+        facts(
+          'a [Ne]3s2 3p3 valence arrangement',
+          'it forms mostly covalent bonds in molecules, network solids, oxoacids, and anion frameworks',
+          '-3, +3, and +5',
+          'P4 molecules, phosphates, phosphites, phosphines, and PCl3 or PCl5-type compounds',
+          'the ability to form strong P-O bonds and variable coordination is a recurring theme in phosphorus chemistry'
+        )
+      ),
+      physical: physicalSection(
+        'Phosphorus',
+        facts(
+          'a solid element occurring in several allotropes with sharply different physical properties',
+          'white phosphorus is waxy and highly reactive, red phosphorus is more stable, and black phosphorus is layered and more conductive',
+          'differences in bonding between molecular and extended structures produce major changes in stability, color, and conductivity',
+          'white phosphorus stored under water and red phosphorus used in safer practical formulations',
+          'physical form controls hazard level strongly, so allotrope identification matters in storage and handling'
+        )
+      ),
+      reactivity: reactivitySection(
+        'Phosphorus',
+        facts(
+          'a reactive nonmetal whose oxidized products are thermodynamically favored and whose reduced forms can be energetic or toxic',
+          'it burns in oxygen to give phosphorus oxides and forms phosphates, chlorides, phosphines, and metal phosphides',
+          'very strong P-O bond formation drives much of phosphorus reactivity',
+          'oxides, oxyacids, phosphates, phosphines, and phosphorus-halogen systems',
+          'white phosphorus is pyrophoric and toxic, and reduced phosphorus compounds can present major fire and inhalation hazards'
+        )
+      ),
+      occurrence: occurrenceSection(
+        'Phosphorus',
+        facts(
+          'phosphate minerals such as apatite and in biological phosphate reservoirs',
+          'it is not among the most abundant elements overall, but it is indispensable in biology and agriculture',
+          'phosphate rock, soils, biomass, bones, and marine nutrient cycles are the principal reservoirs',
+          'phosphorus cycling is environmentally important because nutrient runoff can drive eutrophication',
+          'free elemental phosphorus is absent in nature because oxidized phosphate is far more stable under Earth conditions'
+        )
+      ),
+      isotopes: isotopeSection(
+        'Phosphorus',
+        facts(
+          'stable phosphorus-31 together with radioactive isotopes such as phosphorus-32 and phosphorus-33',
+          'phosphorus-31 is the only stable isotope, while phosphorus-32 and phosphorus-33 are radioactive tracers',
+          'radioisotopes are useful in following phosphate transport, metabolism, and nucleic-acid chemistry',
+          '32P labeling has been important in molecular biology, biochemistry, and agricultural tracing',
+          'isotope work with phosphorus often requires explicit radiological controls rather than stable-isotope fractionation analysis'
+        )
+      ),
+      production: productionSection(
+        'Phosphorus',
+        facts(
+          'electric-furnace reduction of phosphate rock with carbon and silica to make elemental phosphorus',
+          'phosphorus production depends on high-temperature reduction because phosphate is the stable natural form',
+          'most phosphorus also enters commerce through phosphoric acid and fertilizer manufacture rather than through elemental phosphorus alone',
+          'ore beneficiation, impurity control, and condensation or purification of phosphorus vapor are important process steps',
+          'resource and environmental issues are tied to finite phosphate reserves and runoff from fertilizer use'
+        )
+      ),
+      applied: appliedSection(
+        'Phosphorus',
+        facts(
+          'fertilizers, biochemical energy systems, flame-retardant chemistry, and specialty organophosphorus synthesis',
+          'phosphates, phosphoric acid, phosphines, phosphorus oxides, and organophosphorus compounds',
+          'phosphorus is essential in ATP, nucleic acids, cell membranes, and long-term agricultural productivity',
+          'historical phosphorus isolation and later fertilizer chemistry profoundly changed industry, medicine, and food production',
+          'hazards include pyrophoric white phosphorus, toxic phosphine, and environmental harm from nutrient overloading'
+        )
+      ),
+    },
+  },
+  {
+    id: 'sulfur',
+    name: 'Sulfur',
+    symbol: 'S',
+    atomicNumber: 16,
+    atomicMass: '32.06',
+    group: '16',
+    period: '3',
+    block: 'p',
+    category: 'Reactive nonmetal',
+    roomState: 'Solid',
+    electronConfiguration: '[Ne]3s2 3p4',
+    oxidationStates: '-2, +4, +6',
+    summaryLine:
+      'Sulfur is a chalcogen nonmetal whose allotropy, sulfide and sulfate chemistry, and huge role in sulfuric acid production make it foundational to industry and biogeochemistry.',
+    importanceLine:
+      'Its chemistry links oxidation-state diversity, mineral resources, environmental cycles, and one of the world’s most important commodity acids.',
+    heroFacts: [
+      'Yellow chalcogen solid',
+      'Common as S8 rings',
+      'Central to sulfuric acid',
+      'Important in sulfide and sulfate minerals',
+    ],
+    glossaryExtras: [
+      term('Claus process', 'Industrial conversion of hydrogen sulfide into elemental sulfur.'),
+      term('Sulfide', 'A sulfur species in the -2 oxidation state, common in minerals and many reduced compounds.'),
+      term('Sulfate', 'A tetrahedral SO4-based anion family characteristic of strongly oxidized sulfur chemistry.'),
+    ],
+    sections: {
+      classification: classificationSection(
+        'Sulfur',
+        facts(
+          'a group-16 chalcogen nonmetal with extensive oxidation-state flexibility',
+          'group 16, period 3, p-block',
+          '[Ne]3s2 3p4',
+          'it can accept two electrons in sulfides or form highly oxidized oxyanions and covalent oxides',
+          'its elemental chemistry is much richer in allotropy and catenation than oxygen'
+        )
+      ),
+      electronic: electronicSection(
+        'Sulfur',
+        facts(
+          'a [Ne]3s2 3p4 valence arrangement',
+          'it forms mostly covalent bonds in elemental allotropes and oxides while also stabilizing sulfide and sulfate ions',
+          '-2, +4, and +6',
+          'S8 molecules, metal sulfides, sulfur dioxide, sulfur trioxide, sulfites, and sulfates',
+          'strong S-O bonding and the ability to catenate make sulfur chemistry especially diverse'
+        )
+      ),
+      physical: physicalSection(
+        'Sulfur',
+        facts(
+          'a yellow, brittle molecular solid under ordinary conditions',
+          'it shows allotropy and unusual melt behavior because sulfur rings can open and polymerize',
+          'molecular S8 packing explains the brittle solid, while longer chains appear in the melt',
+          'orthorhombic sulfur crystals, molten sulfur, and vulcanized sulfur-containing materials',
+          'physical handling is usually straightforward, but dust control and heated sulfur systems require care'
+        )
+      ),
+      reactivity: reactivitySection(
+        'Sulfur',
+        facts(
+          'a moderately reactive nonmetal capable of both reduction to sulfide and oxidation to oxides and sulfates',
+          'it burns in oxygen to form sulfur dioxide and reacts with many metals and nonmetals to give sulfides or covalent sulfur compounds',
+          'large energy changes associated with S-O and metal-sulfur bond formation drive many major reactions',
+          'sulfides, oxides, sulfites, sulfates, thiosulfates, and sulfur-containing organic compounds',
+          'toxic sulfur gases such as H2S and corrosive sulfur-oxide systems are major practical hazards'
+        )
+      ),
+      occurrence: occurrenceSection(
+        'Sulfur',
+        facts(
+          'native sulfur, sulfide minerals, sulfate minerals, and reduced sulfur in petroleum and natural gas',
+          'it is common enough to be geochemically important in both reduced and oxidized reservoirs',
+          'evaporites, sulfide ore bodies, volcanic emissions, and biological sulfur cycles are major reservoirs',
+          'sulfur cycling strongly affects redox chemistry, acid generation, and atmospheric chemistry',
+          'elemental sulfur can occur naturally, but many sulfur atoms are stabilized in sulfide or sulfate compounds'
+        )
+      ),
+      isotopes: isotopeSection(
+        'Sulfur',
+        facts(
+          'sulfur-32, sulfur-33, sulfur-34, and sulfur-36',
+          'all four are stable, with sulfur-32 dominant in natural abundance',
+          'sulfur isotope ratios record biological reduction, oxidation pathways, and environmental cycling',
+          'stable-isotope measurements are widely used in geochemistry, microbiology, and pollution studies',
+          'sulfur isotope work is analytically rich even though ordinary sulfur chemistry presents little radiological concern'
+        )
+      ),
+      production: productionSection(
+        'Sulfur',
+        facts(
+          'recovery from hydrogen sulfide and sulfur-containing fossil-fuel streams, commonly through the Claus process',
+          'modern sulfur supply is dominated by recovery from industrial gas-cleaning rather than by direct mining alone',
+          'native sulfur deposits and metal-sulfide processing remain additional sources',
+          'gas cleanup, catalytic conversion, condensation, and impurity control are key process stages',
+          'sulfur production is closely tied to environmental regulation because removal of sulfur gases limits pollution'
+        )
+      ),
+      applied: appliedSection(
+        'Sulfur',
+        facts(
+          'sulfuric acid manufacture, fertilizers, vulcanization, fungicides, and mineral processing',
+          'sulfuric acid, sulfates, sulfur dioxide, sulfides, and vulcanized sulfur crosslinks in rubber',
+          'sulfur chemistry is central to acid rain, microbial redox cycles, and many biological cofactors',
+          'industrial sulfur chemistry became foundational as sulfuric acid emerged as a benchmark commodity of chemical manufacture',
+          'hazards arise mainly from toxic hydrogen sulfide, sulfur oxides, hot sulfur systems, and strongly acidic downstream products'
+        )
+      ),
+    },
+  },
+  {
+    id: 'chlorine',
+    name: 'Chlorine',
+    symbol: 'Cl',
+    atomicNumber: 17,
+    atomicMass: '35.45',
+    group: '17',
+    period: '3',
+    block: 'p',
+    category: 'Halogen',
+    roomState: 'Gas',
+    electronConfiguration: '[Ne]3s2 3p5',
+    oxidationStates: '-1, +1, +3, +5, +7',
+    summaryLine:
+      'Chlorine is a highly reactive halogen whose oxidizing power, chloride chemistry, and disinfectant applications make it central to industrial, environmental, and biological chemistry.',
+    importanceLine:
+      'Its chemistry connects halogen trends to water treatment, polymer feedstocks, acid-base chemistry, and redox control in both nature and industry.',
+    heroFacts: [
+      'Reactive halogen gas',
+      'Strong oxidizing agent',
+      'Produced by chlor-alkali electrolysis',
+      'Dominant as chloride in seawater',
+    ],
+    glossaryExtras: [
+      term('Brine', 'Concentrated salt solution used as the feed for chlor-alkali chlorine production.'),
+      term('Hypochlorite', 'A chlorine oxyanion family important in bleaching and disinfection chemistry.'),
+      term('Disproportionation', 'A redox process in which one species is simultaneously oxidized and reduced.'),
+    ],
+    sections: {
+      classification: classificationSection(
+        'Chlorine',
+        facts(
+          'a group-17 halogen with a strong tendency to gain one electron or to act as an oxidant',
+          'group 17, period 3, p-block',
+          '[Ne]3s2 3p5',
+          'it forms chloride easily while also supporting a rich series of oxyanions and covalent halides',
+          'it is less electronegative than fluorine but more oxidizing and reactive than bromine or iodine under many conditions'
+        )
+      ),
+      electronic: electronicSection(
+        'Chlorine',
+        facts(
+          'a [Ne]3s2 3p5 valence arrangement',
+          'it readily completes an octet as chloride but also forms covalent bonds in molecular and oxychlorine compounds',
+          '-1, +1, +3, +5, and +7',
+          'Cl2, chloride salts, hypochlorite, chlorate, perchlorate, and many organic chlorides',
+          'high electron affinity and electronegativity make chlorine a powerful participant in redox and bond polarization'
+        )
+      ),
+      physical: physicalSection(
+        'Chlorine',
+        facts(
+          'a greenish-yellow diatomic gas at room temperature',
+          'it is denser than air and can be liquefied under moderate pressure',
+          'weak intermolecular forces give a molecular gas, while high electronegativity still makes the element chemically aggressive',
+          'compressed chlorine cylinders and liquefied chlorine streams in industrial handling',
+          'gas density and corrosive reactivity make containment, leak control, and ventilation essential'
+        )
+      ),
+      reactivity: reactivitySection(
+        'Chlorine',
+        facts(
+          'a powerful oxidizing halogen that reacts readily with metals, many nonmetals, and organic substrates',
+          'it forms chlorides directly with many elements and disproportionates in water to give hydrochloric and hypochlorous acids',
+          'strong electron affinity and formation of stable chloride and oxychlorine products drive much of its chemistry',
+          'metal chlorides, hydrochloric acid, hypochlorite systems, chlorates, and chlorinated organic feedstocks',
+          'chlorine gas is acutely toxic and corrosive, and reaction with organics or ammonia can create additional hazards'
+        )
+      ),
+      occurrence: occurrenceSection(
+        'Chlorine',
+        facts(
+          'chloride salts in seawater, brines, evaporites, and many biological fluids',
+          'it is abundant in seawater and common in the crust chiefly as chloride rather than as elemental chlorine',
+          'halite, sylvite, marine brines, and dissolved chloride in natural waters are the major reservoirs',
+          'chloride is environmentally mobile and biologically important as a major electrolyte',
+          'free chlorine is absent in nature because chloride is far more stable under Earth-surface conditions'
+        )
+      ),
+      isotopes: isotopeSection(
+        'Chlorine',
+        facts(
+          'chlorine-35 and chlorine-37',
+          'both principal naturally occurring isotopes are stable and occur in substantial abundance',
+          'isotopic composition influences average atomic mass and can be used in environmental and planetary tracing',
+          'stable chlorine isotopes are useful in hydrology, geochemistry, and studies of halogen cycling',
+          'isotopic work is analytical rather than radiological in ordinary chlorine chemistry'
+        )
+      ),
+      production: productionSection(
+        'Chlorine',
+        facts(
+          'electrolysis of brine in the chlor-alkali process',
+          'chlorine production is coupled industrially to sodium hydroxide and often hydrogen because all are coproducts of brine electrolysis',
+          'membrane, diaphragm, and older mercury-cell approaches illustrate different process strategies',
+          'brine purification and strict separation of chlorine from caustic and hydrogen streams are critical to safe operation',
+          'energy use, membrane technology, and environmental controls strongly shape modern chlorine manufacture'
+        )
+      ),
+      applied: appliedSection(
+        'Chlorine',
+        facts(
+          'water disinfection, PVC manufacture, bleaching chemistry, and synthesis of inorganic and organic chlorides',
+          'chlorides, hydrochloric acid, hypochlorite bleaches, PVC feedstocks, and chlorinated intermediates',
+          'chloride ions are major biological electrolytes and chlorine chemistry is central to sanitation and public health',
+          'industrial chlorine chemistry transformed bleaching, sanitation, and polymer production, while also leaving a complex environmental legacy',
+          'major hazards include toxic gas exposure, corrosive liquids, and dangerous mixing with ammonia, reducers, or some organics'
+        )
+      ),
+    },
+  },
+  {
+    id: 'argon',
+    name: 'Argon',
+    symbol: 'Ar',
+    atomicNumber: 18,
+    atomicMass: '39.948',
+    group: '18',
+    period: '3',
+    block: 'p',
+    category: 'Noble gas',
+    roomState: 'Gas',
+    electronConfiguration: '[Ne]3s2 3p6',
+    oxidationStates: '0',
+    summaryLine:
+      'Argon is a chemically inert noble gas recovered from air and valued for providing nonreactive atmospheres in science, metallurgy, and lighting.',
+    importanceLine:
+      'Its chemistry is defined largely by the absence of ordinary reactivity, yet that very inertness makes it indispensable in analytical, industrial, and cryogenic practice.',
+    heroFacts: [
+      'Noble gas from air',
+      'Most abundant atmospheric noble gas',
+      'Used for inert atmospheres',
+      'Important in K-Ar geochronology',
+    ],
+    glossaryExtras: [
+      term('Inert atmosphere', 'A gas environment used to exclude reactive gases such as oxygen, nitrogen, or water vapor.'),
+      term('Cryogenic distillation', 'Low-temperature fractional distillation used to separate atmospheric gases.'),
+      term('K-Ar dating', 'A geochronological method that uses radiogenic argon derived from potassium-40 decay.'),
+    ],
+    sections: {
+      classification: classificationSection(
+        'Argon',
+        facts(
+          'a group-18 noble gas with a filled valence shell',
+          'group 18, period 3, p-block',
+          '[Ne]3s2 3p6',
+          'it resists electron gain, electron loss, and ordinary covalent bond formation under ambient conditions',
+          'its closed-shell behavior makes it far less reactive than the halogens or main-group metals surrounding it'
+        )
+      ),
+      electronic: electronicSection(
+        'Argon',
+        facts(
+          'a [Ne]3s2 3p6 closed-shell valence configuration',
+          'it remains monatomic and does not form stable common compounds under ordinary conditions',
+          '0',
+          'gaseous Ar atoms, low-temperature matrices, and excited-state discharge systems rather than ordinary compounds',
+          'the filled shell makes ionization or bond formation energetically unfavorable in normal chemistry'
+        )
+      ),
+      physical: physicalSection(
+        'Argon',
+        facts(
+          'a colorless, odorless monatomic gas',
+          'it is denser than nitrogen and oxygen and becomes a cryogenic liquid at low temperature',
+          'only weak dispersion forces act between monatomic argon atoms',
+          'compressed shielding gas cylinders, discharge tubes, and cryogenic liquid argon systems',
+          'the chief practical risks are pressure and oxygen displacement rather than chemical corrosion'
+        )
+      ),
+      reactivity: reactivitySection(
+        'Argon',
+        facts(
+          'chemically inert under ordinary conditions',
+          'it does not form stable common compounds and is used precisely because it excludes reactive chemistry',
+          'the closed-shell electron configuration makes electron transfer and sharing highly unfavorable',
+          'excited-state discharges, plasma systems, and a few exotic high-pressure species define the edge of argon chemistry',
+          'practical concerns are physical, especially asphyxiation and compressed-gas hazards, rather than ordinary chemical attack'
+        )
+      ),
+      occurrence: occurrenceSection(
+        'Argon',
+        facts(
+          'the atmosphere, where it accumulates largely because of potassium-40 decay and its chemical inertness',
+          'it is the most abundant noble gas in Earth atmosphere',
+          'air is the overwhelmingly dominant practical reservoir for commercial argon',
+          'argon is environmentally quiet because it is inert and therefore participates little in biological or aqueous redox cycling',
+          'its atmospheric accumulation is aided by the stability of elemental argon once formed'
+        )
+      ),
+      isotopes: isotopeSection(
+        'Argon',
+        facts(
+          'argon-36, argon-38, and argon-40',
+          'all three are stable, with argon-40 especially important because it is produced radiogenically from potassium-40',
+          'argon isotopes record atmospheric, mantle, and radiogenic histories in geological systems',
+          'argon isotopes are central to potassium-argon and argon-argon geochronology',
+          'isotope interpretation requires attention to trapped, atmospheric, and radiogenic contributions'
+        )
+      ),
+      production: productionSection(
+        'Argon',
+        facts(
+          'fractional distillation of liquid air in large air-separation plants',
+          'argon is recovered commercially because it is sufficiently abundant in air and separates cryogenically with the major atmospheric gases',
+          'ultra-high-purity grades require additional purification beyond simple bulk air separation',
+          'removal of oxygen, nitrogen, and moisture impurities is critical for welding and analytical uses',
+          'the economics of argon production are closely tied to the broader air-separation industry'
+        )
+      ),
+      applied: appliedSection(
+        'Argon',
+        facts(
+          'shielding atmospheres for welding and metallurgy, inert gloveboxes, lighting, and analytical instrumentation',
+          'argon plasma systems, shielding-gas mixtures, filled lamps, and liquid-argon detector or cooling systems',
+          'argon is scientifically important because it provides nonreactive conditions and because its isotopes record geological time',
+          'argon became industrially important as electric lighting, welding, and low-contamination materials handling expanded',
+          'hazards are dominated by oxygen displacement in confined spaces and compressed-gas handling'
+        )
+      ),
+    },
+  },
+  {
+    id: 'potassium',
+    name: 'Potassium',
+    symbol: 'K',
+    atomicNumber: 19,
+    atomicMass: '39.0983',
+    group: '1',
+    period: '4',
+    block: 's',
+    category: 'Alkali metal',
+    roomState: 'Solid',
+    electronConfiguration: '[Ar]4s1',
+    oxidationStates: '+1',
+    summaryLine:
+      'Potassium is a highly reactive alkali metal whose K+ ion is essential in biology and agriculture, while the metal itself illustrates the extreme reducing behavior of group-1 chemistry.',
+    importanceLine:
+      'Its chemistry links periodic trends, plant nutrition, membrane physiology, and the management of highly reactive metallic alkali elements.',
+    heroFacts: [
+      'Very reactive alkali metal',
+      'K+ is a major intracellular ion',
+      'Key nutrient in fertilizers',
+      'Contains naturally radioactive 40K',
+    ],
+    glossaryExtras: [
+      term('Potash', 'A broad industrial and agricultural term for potassium-containing salts, especially fertilizer feedstocks.'),
+      term('Sylvite', 'Potassium chloride mineral, an important ore for potassium salts.'),
+      term('Intracellular cation', 'A positively charged ion concentrated mainly inside cells, as potassium is in biology.'),
+    ],
+    sections: {
+      classification: classificationSection(
+        'Potassium',
+        facts(
+          'a heavy alkali metal with one 4s valence electron',
+          'group 1, period 4, s-block',
+          '[Ar]4s1',
+          'it loses its outer electron even more readily than sodium and forms strongly ionic K+ compounds',
+          'its chemistry extends the alkali-metal trend toward lower ionization energy and greater metallic reactivity'
+        )
+      ),
+      electronic: electronicSection(
+        'Potassium',
+        facts(
+          'a [Ar]4s1 valence shell',
+          'it forms predominantly ionic compounds and is stabilized overwhelmingly as K+ in normal chemistry',
+          '+1 in ordinary compounds',
+          'KCl, KOH, K2O, and hydrated K+ in biological and aqueous systems',
+          'larger size and lower charge density than sodium weaken hydration and lattice effects while preserving strong ionic character'
+        )
+      ),
+      physical: physicalSection(
+        'Potassium',
+        facts(
+          'a very soft, silvery, low-density metallic solid',
+          'it is softer and has a lower melting point than sodium',
+          'weak metallic bonding in the expanded alkali-metal lattice gives extreme softness and easy deformation',
+          'freshly cut potassium metal and low-melting alkali-metal samples used only under protective storage',
+          'the metal must be kept away from air and moisture because tarnishing and ignition can occur rapidly'
+        )
+      ),
+      reactivity: reactivitySection(
+        'Potassium',
+        facts(
+          'an extremely reactive reducing metal that reacts even more vigorously with water than sodium',
+          'it reacts with water to give potassium hydroxide and hydrogen and oxidizes rapidly in air',
+          'very low ionization energy and stabilization of K+ make oxidation and salt formation strongly favored',
+          'superoxides, hydroxides, halides, and potassium salts used in synthesis and agriculture',
+          'small quantities can ignite explosively with water or moist air and require strict dry storage and handling'
+        )
+      ),
+      occurrence: occurrenceSection(
+        'Potassium',
+        facts(
+          'potash salts, feldspars, micas, soils, and biological fluids',
+          'it is abundant enough to be agriculturally crucial but occurs almost entirely in combined ionic form',
+          'sylvite, carnallite, feldspar minerals, and dissolved potassium in soils and natural waters are key reservoirs',
+          'potassium cycling is biologically important because K+ is essential to cell function and plant nutrition',
+          'free potassium metal is absent in nature because the element is too reactive to persist uncombined'
+        )
+      ),
+      isotopes: isotopeSection(
+        'Potassium',
+        facts(
+          'potassium-39, potassium-40, and potassium-41',
+          'potassium-40 is a naturally occurring radioactive isotope whereas potassium-39 and potassium-41 are stable',
+          'radiogenic decay of potassium-40 to argon-40 and calcium-40 gives potassium unusual geochemical importance',
+          'K-Ar and Ar-Ar dating depend on potassium isotopes in geological materials',
+          'the weak natural radioactivity of potassium is scientifically important but usually not a major chemical-handling concern'
+        )
+      ),
+      production: productionSection(
+        'Potassium',
+        facts(
+          'reduction or electrochemical processing of potassium salts such as potassium chloride, often followed by distillation',
+          'potassium metal is harder to isolate and handle than sodium because the element is even more reactive',
+          'most commercial potassium enters use as salts rather than as elemental metal',
+          'control of water, oxygen, and high-temperature vapor handling is essential in metal production',
+          'fertilizer economics make potassium-salt mining far more important globally than metallic potassium production'
+        )
+      ),
+      applied: appliedSection(
+        'Potassium',
+        facts(
+          'fertilizers, biological electrolytes, strong bases, and specialty reducing systems',
+          'potassium chloride, potassium nitrate, potassium hydroxide, and many biologically relevant potassium salts',
+          'K+ is essential in membrane potentials, nerve signaling, muscle function, and plant growth',
+          'discovery of potassium by electrolysis reinforced the understanding of alkali metals as a distinct chemical family',
+          'hazards center on the extreme water reactivity of the metal and the caustic nature of many concentrated potassium compounds'
+        )
+      ),
+    },
+  },
+  {
+    id: 'calcium',
+    name: 'Calcium',
+    symbol: 'Ca',
+    atomicNumber: 20,
+    atomicMass: '40.078',
+    group: '2',
+    period: '4',
+    block: 's',
+    category: 'Alkaline earth metal',
+    roomState: 'Solid',
+    electronConfiguration: '[Ar]4s2',
+    oxidationStates: '+2',
+    summaryLine:
+      'Calcium is an abundant alkaline-earth metal whose Ca2+ ion dominates mineral carbonates, biological hard tissues, and many industrial inorganic materials.',
+    importanceLine:
+      'Its chemistry links group-2 trends to biomineralization, lime and cement technology, geological carbon cycles, and moderate metallic reactivity.',
+    heroFacts: [
+      'Alkaline earth metal',
+      'Major component of limestone',
+      'Essential in bones and shells',
+      'Key to lime and cement chemistry',
+    ],
+    glossaryExtras: [
+      term('Calcination', 'Thermal decomposition of carbonates such as limestone to oxides such as lime.'),
+      term('Lime', 'Common name for calcium oxide or, in some contexts, calcium hydroxide.'),
+      term('Hydroxyapatite', 'A calcium phosphate mineral that is a principal component of bone and teeth.'),
+    ],
+    sections: {
+      classification: classificationSection(
+        'Calcium',
+        facts(
+          'an alkaline earth metal with a filled 4s pair',
+          'group 2, period 4, s-block',
+          '[Ar]4s2',
+          'it forms Ca2+ readily and shows classic group-2 ionic chemistry on a large geological and biological scale',
+          'its chemistry is more strongly ionic and more geochemically abundant than that of the lighter beryllium and magnesium'
+        )
+      ),
+      electronic: electronicSection(
+        'Calcium',
+        facts(
+          'a [Ar]4s2 valence shell',
+          'it forms mostly ionic compounds built around Ca2+ and oxygen- or halide-containing anions',
+          '+2 in ordinary compounds',
+          'CaO, CaCO3, CaSO4, hydroxyapatite, and hydrated Ca2+ ions',
+          'the relatively large doubly charged cation favors high coordination numbers and extensive ionic lattices'
+        )
+      ),
+      physical: physicalSection(
+        'Calcium',
+        facts(
+          'a silvery metallic solid',
+          'it is softer and lighter than many engineering metals but less soft than the alkali metals',
+          'metallic bonding gives a workable solid, while its compounds often form hard ionic minerals',
+          'calcium metal, lime-derived materials, and calcium-rich minerals such as limestone and gypsum',
+          'bulk calcium metal tarnishes in air and should be protected from moisture and strong oxidizers'
+        )
+      ),
+      reactivity: reactivitySection(
+        'Calcium',
+        facts(
+          'a reactive alkaline-earth metal that forms stable ionic oxides, hydroxides, and salts',
+          'it reacts with oxygen, acids, and water more moderately than sodium or potassium but still readily enough to require caution',
+          'strong stabilization of Ca2+ and of ionic solids such as oxides and carbonates drives much of its chemistry',
+          'oxides, hydroxides, carbonates, sulfates, phosphates, and organocalcium or reducing systems in specialized chemistry',
+          'metal handling requires control of moisture and air, while caustic lime and dusts present additional practical hazards'
+        )
+      ),
+      occurrence: occurrenceSection(
+        'Calcium',
+        facts(
+          'carbonate rocks, gypsum, apatite, seawater ions, and biological mineralized tissues',
+          'it is one of the most abundant and geochemically important crustal metals',
+          'limestone, dolomite, shells, bones, teeth, and many evaporite or phosphate minerals are major reservoirs',
+          'calcium cycling is tied to weathering, carbonate equilibria, seawater chemistry, and biological hard-part formation',
+          'native calcium metal is absent because the element is easily oxidized and stabilized as salts or minerals'
+        )
+      ),
+      isotopes: isotopeSection(
+        'Calcium',
+        facts(
+          'calcium-40, calcium-42, calcium-43, calcium-44, calcium-46, and calcium-48',
+          'most calcium isotopes are stable, while calcium-40 is by far the most abundant and calcium-48 is unusually neutron rich',
+          'calcium isotope ratios can trace biomineralization, environmental cycling, and cosmochemical processes',
+          'stable-isotope studies and specialized nuclear research make calcium isotopes scientifically useful',
+          'isotope work in calcium chemistry is mostly analytical and does not dominate routine handling'
+        )
+      ),
+      production: productionSection(
+        'Calcium',
+        facts(
+          'electrolysis of molten calcium chloride or related high-temperature reduction routes',
+          'metal production is challenging because Ca2+ is strongly stabilized and reacts readily with air and moisture once formed',
+          'much larger calcium industries center on limestone processing rather than on the isolated metal itself',
+          'dry chloride feedstocks, refractory equipment, and protected collection of metal are required for successful production',
+          'industrial calcium chemistry is economically dominated by lime, cement, and mineral processing rather than by metallic calcium sales'
+        )
+      ),
+      applied: appliedSection(
+        'Calcium',
+        facts(
+          'cement and lime chemistry, metallurgy, deoxidation, agriculture, and biological structure',
+          'calcium carbonate, calcium oxide, calcium hydroxide, gypsum, calcium chloride, and calcium phosphates',
+          'Ca2+ is essential in signaling, muscle contraction, bone formation, and many environmental equilibria',
+          'lime-based technologies were foundational to ancient construction and remain central to modern cement and steelmaking',
+          'hazards are moderate for many calcium salts but can be severe for caustic lime, dust exposure, and reactive metallic calcium'
+        )
+      ),
+    },
+  },
+];

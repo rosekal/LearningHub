@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "learnhub",
+    "name": "LearnHub",
     "slug": "learnhub",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -33,9 +33,9 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#F5F1E8",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#07131E"
           }
         }
       ]
