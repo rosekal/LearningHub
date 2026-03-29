@@ -7,6 +7,7 @@ import { RecommendedActionCard } from '@/components/RecommendedActionCard';
 import { SectionHeader } from '@/components/SectionHeader';
 import { TopicCard } from '@/components/TopicCard';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useBreakpoints } from '@/hooks/use-breakpoints';
 import { getChapterById, getSubjectById, getTopicById, getUnitById } from '@/content/catalog';
 import { getRecommendedActionForSubject, getTopicProgress } from '@/features/learning/selectors';
 import { useStudy } from '@/hooks/use-study';
@@ -23,6 +24,7 @@ export default function SubjectScreen() {
   const { subjectId } = useLocalSearchParams<{ subjectId: string }>();
   const subject = getSubjectById(subjectId);
   const theme = useAppTheme();
+  const { isDesktop, isTablet } = useBreakpoints();
   const router = useRouter();
   const { progress } = useStudy();
 
@@ -180,20 +182,30 @@ export default function SubjectScreen() {
           description={`Each topic becomes a distinct branch of subject content. ${subject.title} currently spans ${formatCount(subject.topics.length, 'topic')} and ${formatCount(totalUnits, 'seeded learning unit')} across the same reading, flashcard, and quiz workflow.`}
           action={<Button label="Back Home" variant="ghost" icon="arrow-back-outline" onPress={() => router.push(homeRoute())} />}
         />
-        {subject.topics.map((topic) => {
-          const topicProgress = getTopicProgress(progress, topic);
+        <View
+          style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: theme.spacing.md,
+          }}>
+          {subject.topics.map((topic) => {
+            const topicProgress = getTopicProgress(progress, topic);
 
-          return (
-            <TopicCard
-              key={topic.id}
-              topic={topic}
-              progressPercentage={topicProgress.percentage}
-              detail={`${topicProgress.completed} of ${topicProgress.total} chapter readings completed`}
-              href={topicRoute(subject.id, topic.id)}
-              onPress={() => router.push(topicRoute(subject.id, topic.id))}
-            />
-          );
-        })}
+            return (
+              <View
+                key={topic.id}
+                style={{ width: isDesktop ? '31.8%' : isTablet ? '48%' : '100%' }}>
+                <TopicCard
+                  topic={topic}
+                  progressPercentage={topicProgress.percentage}
+                  detail={`${topicProgress.completed} of ${topicProgress.total} chapter readings completed`}
+                  href={topicRoute(subject.id, topic.id)}
+                  onPress={() => router.push(topicRoute(subject.id, topic.id))}
+                />
+              </View>
+            );
+          })}
+        </View>
       </View>
     </AppShell>
   );

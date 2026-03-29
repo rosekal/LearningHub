@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { type Href, Link } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
 import type { Topic } from '@/content/schema';
+import { ProgressBadge } from '@/components/ProgressBadge';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useBreakpoints } from '@/hooks/use-breakpoints';
-import { ProgressBadge } from '@/components/ProgressBadge';
+import { getElementAccentPalette } from '@/theme/element-accents';
 import { interpolateByWidth } from '@/utils/responsive';
 
 interface TopicCardProps {
@@ -13,17 +15,27 @@ interface TopicCardProps {
   detail: string;
   onPress: () => void;
   href?: Href;
+  accentId?: string;
 }
 
-export function TopicCard({ topic, progressPercentage, detail, onPress, href }: TopicCardProps) {
+export function TopicCard({
+  topic,
+  progressPercentage,
+  detail,
+  onPress,
+  href,
+  accentId,
+}: TopicCardProps) {
   const theme = useAppTheme();
-  const { width, isTablet } = useBreakpoints();
-  const compact = !isTablet;
+  const { width } = useBreakpoints();
+  const [isFocused, setIsFocused] = useState(false);
+  const palette = getElementAccentPalette(accentId ?? topic.learningUnits[0]?.id, theme);
+  const chapterCount = topic.learningUnits.reduce((count, unit) => count + unit.chapters.length, 0);
   const titleSize = Math.round(
     interpolateByWidth({
       width,
       minValue: 24,
-      maxValue: 30,
+      maxValue: theme.typography.display,
       minWidth: 320,
       maxWidth: 768,
     })
@@ -33,48 +45,59 @@ export function TopicCard({ topic, progressPercentage, detail, onPress, href }: 
     <Pressable
       accessibilityRole={href ? 'link' : 'button'}
       accessibilityLabel={`Open topic ${topic.title}`}
+      accessibilityHint={`Open ${topic.learningUnits.length} units and ${chapterCount} chapter readings`}
+      onBlur={() => setIsFocused(false)}
+      onFocus={() => setIsFocused(true)}
       onPress={onPress}
       style={({ hovered, pressed }) => ({
         overflow: 'hidden',
         borderRadius: theme.radius.xl,
         borderWidth: 1,
-        borderColor: theme.colors.borderStrong,
+        borderColor: isFocused ? palette.accent : palette.line,
         backgroundColor: theme.colors.surfaceElevated,
         opacity: pressed ? 0.92 : 1,
         transform: [{ translateY: hovered ? -3 : pressed ? 1 : 0 }],
         shadowColor: theme.shadow.medium.shadowColor,
-        shadowOpacity: hovered ? 0.16 : 0.11,
-        shadowRadius: hovered ? 24 : 16,
-        shadowOffset: { width: 0, height: hovered ? 14 : 10 },
+        shadowOpacity: hovered ? 0.16 : 0.1,
+        shadowRadius: 26,
+        shadowOffset: { width: 0, height: 14 },
         elevation: hovered ? 10 : 6,
       })}>
       <View
         style={{
-          gap: theme.spacing.sm,
-          backgroundColor: theme.colors.surfaceElevated,
-          padding: compact ? theme.spacing.lg : theme.spacing.xl,
+          gap: theme.spacing.md,
+          backgroundColor: palette.panel,
+          padding: theme.spacing.lg,
         }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
+        <View
+          style={{
+            alignSelf: 'flex-start',
+            borderRadius: theme.radius.pill,
+            borderWidth: 1,
+            borderColor: palette.line,
+            backgroundColor: palette.accentMuted,
+            paddingHorizontal: theme.spacing.sm,
+            paddingVertical: 6,
+          }}>
           <Text
             style={{
-              color: theme.colors.teal,
+              color: palette.accentStrong,
               fontFamily: theme.fonts.mono,
               fontSize: 12,
               fontWeight: '700',
-              letterSpacing: 1,
+              letterSpacing: 0.8,
               textTransform: 'uppercase',
             }}>
             Topic
           </Text>
-          <View style={{ flex: 1, height: 1, backgroundColor: theme.colors.divider }} />
         </View>
         <Text
           style={{
-            color: theme.colors.text,
+            color: palette.accentStrong,
             fontFamily: theme.fonts.display,
             fontSize: titleSize,
             fontWeight: '700',
-            lineHeight: Math.round(titleSize * 1.15),
+            lineHeight: Math.round(titleSize * 1.12),
           }}>
           {topic.title}
         </Text>
@@ -83,19 +106,20 @@ export function TopicCard({ topic, progressPercentage, detail, onPress, href }: 
             color: theme.colors.textMuted,
             fontFamily: theme.fonts.body,
             fontSize: theme.typography.body,
-            lineHeight: 24,
-          }}>
+            lineHeight: 26,
+          }}
+          numberOfLines={4}>
           {topic.description}
         </Text>
       </View>
 
       <View
         style={{
-          gap: theme.spacing.lg,
+          gap: theme.spacing.md,
           borderTopWidth: 1,
-          borderTopColor: theme.colors.borderStrong,
-          backgroundColor: theme.colors.surfaceTinted,
-          padding: compact ? theme.spacing.lg : theme.spacing.xl,
+          borderTopColor: palette.line,
+          backgroundColor: theme.colors.surfaceElevated,
+          padding: theme.spacing.lg,
         }}>
         <View
           style={{
@@ -104,24 +128,23 @@ export function TopicCard({ topic, progressPercentage, detail, onPress, href }: 
             gap: theme.spacing.sm,
           }}>
           {[
-            topic.sectionLabel,
             `${topic.learningUnits.length} units`,
-            `${topic.learningUnits.reduce((count, unit) => count + unit.chapters.length, 0)} chapters`,
+            `${chapterCount} chapters`,
           ].map((item) => (
             <View
               key={item}
               style={{
                 borderRadius: theme.radius.pill,
                 borderWidth: 1,
-                borderColor: theme.colors.border,
-                backgroundColor: theme.colors.surfaceElevated,
+                borderColor: palette.line,
+                backgroundColor: palette.panel,
                 paddingHorizontal: theme.spacing.sm,
                 paddingVertical: 8,
                 maxWidth: '100%',
               }}>
               <Text
                 style={{
-                  color: theme.colors.textMuted,
+                  color: palette.accentStrong,
                   fontFamily: theme.fonts.mono,
                   fontSize: 12,
                   fontWeight: '700',
@@ -138,42 +161,22 @@ export function TopicCard({ topic, progressPercentage, detail, onPress, href }: 
         <View
           style={{
             gap: theme.spacing.sm,
-            paddingTop: theme.spacing.md,
+            paddingTop: theme.spacing.sm,
             borderTopWidth: 1,
-            borderTopColor: theme.colors.border,
+            borderTopColor: palette.line,
           }}>
-          <View
+          <Text
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: theme.spacing.sm,
-              minWidth: 0,
+              color: palette.accent,
+              fontFamily: theme.fonts.mono,
+              fontSize: 11,
+              fontWeight: '700',
+              letterSpacing: 0.8,
+              textTransform: 'uppercase',
             }}>
-            <Text
-              style={{
-                color: theme.colors.textSoft,
-                fontFamily: theme.fonts.mono,
-                fontSize: 11,
-                fontWeight: '700',
-                letterSpacing: 0.8,
-                textTransform: 'uppercase',
-              }}>
-              Topic progress
-            </Text>
-            <Text
-              style={{
-                color: theme.colors.textMuted,
-                fontFamily: theme.fonts.body,
-                fontSize: 13,
-                lineHeight: 18,
-                flexShrink: 1,
-                textAlign: 'right',
-              }}>
-              {detail}
-            </Text>
-          </View>
-          <ProgressBadge percentage={progressPercentage} />
+            Topic progress
+          </Text>
+          <ProgressBadge percentage={progressPercentage} detail={detail} accent={palette} />
         </View>
       </View>
     </Pressable>
