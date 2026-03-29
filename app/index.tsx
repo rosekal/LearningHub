@@ -438,6 +438,7 @@ export default function HomeScreen() {
             style={{
               flexDirection: 'row',
               flexWrap: 'wrap',
+              alignItems: 'stretch',
               gap: theme.spacing.md,
             }}>
             {globalSearchState.results.map((result) => {
@@ -452,7 +453,11 @@ export default function HomeScreen() {
               return (
                 <View
                   key={result.unit.id}
-                  style={{ width: isDesktop ? '31.8%' : isTablet ? '48%' : '100%' }}>
+                  style={{
+                    width: isDesktop ? '31.8%' : isTablet ? '48%' : '100%',
+                    alignSelf: 'stretch',
+                    minWidth: 0,
+                  }}>
                   <LearningUnitCard
                     unit={result.unit}
                     progressPercentage={unitProgress.percentage}

@@ -342,13 +342,20 @@ export default function TopicScreen() {
             style={{
               flexDirection: 'row',
               flexWrap: 'wrap',
+              alignItems: 'stretch',
               gap: theme.spacing.md,
             }}>
             {filteredUnits.map((unit) => {
               const unitProgress = getUnitProgress(progress, unit);
 
               return (
-                <View key={unit.id} style={{ width: cardWidth }}>
+                <View
+                  key={unit.id}
+                  style={{
+                    width: cardWidth,
+                    alignSelf: 'stretch',
+                    minWidth: 0,
+                  }}>
                   <LearningUnitCard
                     unit={unit}
                     progressPercentage={unitProgress.percentage}

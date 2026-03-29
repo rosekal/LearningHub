@@ -27,8 +27,15 @@ export function LearningUnitCard({
 }: LearningUnitCardProps) {
   const theme = useAppTheme();
   const accent = useElementAccent(unit.id);
-  const { width, isTablet } = useBreakpoints();
+  const { width, isTablet, isDesktop } = useBreakpoints();
   const compact = !isTablet;
+  const summaryLineCount = compact ? 4 : 3;
+  const headerMinHeight = compact ? undefined : isDesktop ? 264 : 248;
+  const metadataRegionHeight = compact || searchMatchLabel ? undefined : isDesktop ? 140 : 132;
+  const visibleFacts = compact ? unit.hero.facts.slice(0, 3) : unit.hero.facts.slice(0, 2);
+  const hiddenFactCount = Math.max(0, unit.hero.facts.length - visibleFacts.length);
+  const metadataFacts =
+    hiddenFactCount > 0 ? [...visibleFacts, `+${hiddenFactCount} more`] : visibleFacts;
   const titleSize = Math.round(
     interpolateByWidth({
       width,
@@ -45,6 +52,8 @@ export function LearningUnitCard({
       accessibilityLabel={`Open ${unit.title}`}
       onPress={onPress}
       style={({ hovered, pressed }) => ({
+        flex: 1,
+        height: '100%',
         overflow: 'hidden',
         borderRadius: theme.radius.xl,
         borderWidth: 1,
@@ -60,7 +69,8 @@ export function LearningUnitCard({
       })}>
       <View
         style={{
-          gap: theme.spacing.lg,
+          height: headerMinHeight,
+          minHeight: headerMinHeight,
           backgroundColor: accent.heroFrom,
           padding: compact ? theme.spacing.lg : theme.spacing.xl,
         }}>
@@ -75,76 +85,82 @@ export function LearningUnitCard({
             backgroundColor: accent.glow,
           }}
         />
-        <View
-          style={{
-            flexDirection: compact ? 'column' : 'row',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            gap: theme.spacing.md,
-            minWidth: 0,
-          }}>
-          <View style={{ flex: 1, gap: theme.spacing.xs }}>
-            <Text
-              style={{
-                color: accent.accentContrast,
-                fontFamily: theme.fonts.mono,
-                fontSize: 12,
-                fontWeight: '700',
-                letterSpacing: 0.9,
-                textTransform: 'uppercase',
-              }}>
-              {unit.shortTitle}
-            </Text>
-            <Text
-              style={{
-                color: accent.accentContrast,
-                fontFamily: theme.fonts.display,
-                fontSize: titleSize,
-                fontWeight: '700',
-                lineHeight: Math.round(titleSize * 1.15),
-                flexShrink: 1,
-              }}>
-              {unit.title}
-            </Text>
-          </View>
+        <View style={{ flex: 1, gap: theme.spacing.lg }}>
           <View
             style={{
-              minWidth: compact ? 60 : 68,
-              minHeight: compact ? 60 : 68,
-              borderRadius: 22,
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderWidth: 1,
-              borderColor: 'rgba(255,255,255,0.28)',
-              backgroundColor: 'rgba(255,255,255,0.08)',
-              alignSelf: compact ? 'flex-start' : 'auto',
-              paddingHorizontal: compact ? theme.spacing.md : theme.spacing.sm,
+              flexDirection: compact ? 'column' : 'row',
+              alignItems: 'flex-start',
+              justifyContent: 'space-between',
+              gap: theme.spacing.md,
+              minWidth: 0,
             }}>
-            <Text
+            <View style={{ flex: 1, gap: theme.spacing.xs }}>
+              <Text
+                style={{
+                  color: accent.accentContrast,
+                  fontFamily: theme.fonts.mono,
+                  fontSize: 12,
+                  fontWeight: '700',
+                  letterSpacing: 0.9,
+                  textTransform: 'uppercase',
+                }}>
+                {unit.shortTitle}
+              </Text>
+              <Text
+                numberOfLines={2}
+                style={{
+                  color: accent.accentContrast,
+                  fontFamily: theme.fonts.display,
+                  fontSize: titleSize,
+                  fontWeight: '700',
+                  lineHeight: Math.round(titleSize * 1.15),
+                  flexShrink: 1,
+                }}>
+                {unit.title}
+              </Text>
+            </View>
+            <View
               style={{
-                color: accent.accentContrast,
-                fontFamily: theme.fonts.display,
-                fontSize: compact ? 22 : 24,
-                fontWeight: '700',
+                minWidth: compact ? 60 : 68,
+                minHeight: compact ? 60 : 68,
+                borderRadius: 22,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.28)',
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                alignSelf: compact ? 'flex-start' : 'auto',
+                paddingHorizontal: compact ? theme.spacing.md : theme.spacing.sm,
               }}>
-              {unit.metadata[0]?.value}
-            </Text>
+              <Text
+                style={{
+                  color: accent.accentContrast,
+                  fontFamily: theme.fonts.display,
+                  fontSize: compact ? 22 : 24,
+                  fontWeight: '700',
+                }}>
+                {unit.metadata[0]?.value}
+              </Text>
+            </View>
           </View>
-        </View>
 
-        <Text
-          style={{
-            color: 'rgba(248, 247, 243, 0.86)',
-            fontFamily: theme.fonts.body,
-            fontSize: theme.typography.body,
-            lineHeight: compact ? 24 : 26,
-          }}>
-          {unit.summary}
-        </Text>
+          <Text
+            numberOfLines={summaryLineCount}
+            style={{
+              marginTop: 'auto',
+              color: 'rgba(248, 247, 243, 0.86)',
+              fontFamily: theme.fonts.body,
+              fontSize: theme.typography.body,
+              lineHeight: compact ? 24 : 26,
+            }}>
+            {unit.summary}
+          </Text>
+        </View>
       </View>
 
       <View
         style={{
+          flex: 1,
           gap: theme.spacing.lg,
           borderTopWidth: 1,
           borderTopColor: accent.line,
@@ -154,9 +170,13 @@ export function LearningUnitCard({
         <View
           style={{
             gap: theme.spacing.md,
+            minHeight: metadataRegionHeight,
+            maxHeight: metadataRegionHeight,
+            overflow: metadataRegionHeight ? 'hidden' : 'visible',
           }}>
           <View
             style={{
+              minHeight: 34,
               flexDirection: 'row',
               flexWrap: 'wrap',
               gap: theme.spacing.sm,
@@ -173,6 +193,7 @@ export function LearningUnitCard({
                   maxWidth: '100%',
                 }}>
                 <Text
+                  numberOfLines={1}
                   style={{
                     color: accent.accent,
                     fontFamily: theme.fonts.mono,
@@ -198,6 +219,7 @@ export function LearningUnitCard({
                 maxWidth: '100%',
               }}>
               <Text
+                numberOfLines={1}
                 style={{
                   color: theme.colors.textSoft,
                   fontFamily: theme.fonts.mono,
@@ -215,11 +237,13 @@ export function LearningUnitCard({
 
           <View
             style={{
+              minHeight: compact ? undefined : 72,
               flexDirection: 'row',
               flexWrap: 'wrap',
+              alignContent: 'flex-start',
               gap: theme.spacing.sm,
             }}>
-            {unit.hero.facts.slice(0, 3).map((fact) => (
+            {metadataFacts.map((fact) => (
               <View
                 key={fact}
                 style={{
@@ -232,6 +256,7 @@ export function LearningUnitCard({
                   maxWidth: '100%',
                 }}>
                 <Text
+                  numberOfLines={1}
                   style={{
                     color: accent.accentStrong,
                     fontFamily: theme.fonts.mono,
@@ -251,6 +276,7 @@ export function LearningUnitCard({
 
         <View
           style={{
+            marginTop: 'auto',
             gap: theme.spacing.md,
             borderRadius: theme.radius.lg,
             borderWidth: 1,
