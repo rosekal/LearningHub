@@ -109,7 +109,7 @@ export default function HomeScreen() {
     };
   });
   const featuredSubjects = subjectEntries.slice(0, isTablet ? 2 : 1);
-  const catalogSubjects = subjectEntries.slice(featuredSubjects.length);
+  const catalogSubjects = subjectEntries;
 
   const hero = (
     <View
