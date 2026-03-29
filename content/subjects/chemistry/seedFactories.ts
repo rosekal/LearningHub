@@ -52,7 +52,7 @@ export function physicalSection(name: string, facts: FactSet): SectionSeed {
 
 export function reactivitySection(name: string, facts: FactSet): SectionSeed {
   return section(
-    `The chemistry of ${name} is best introduced through ${facts[0]}, which captures both the thermodynamic tendencies of the element and the practical hazards associated with it.`,
+    `The chemistry of ${name} is best introduced as ${facts[0]}, which captures both the thermodynamic tendencies of the element and the practical hazards associated with it.`,
     [
       'Reactivity is not only about whether the element reacts, but also about which conditions activate it and which products are favored.',
       'Bond strength, charge stabilization, passivation, and catalysis often matter as much as simple thermodynamic driving force.',

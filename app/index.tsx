@@ -1,29 +1,56 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 
 import { AppShell } from '@/components/AppShell';
 import { Button } from '@/components/Button';
+import { LearningUnitCard } from '@/components/LearningUnitCard';
+import { RecommendedActionCard } from '@/components/RecommendedActionCard';
+import { SearchBar } from '@/components/SearchBar';
 import { SectionHeader } from '@/components/SectionHeader';
 import { SubjectCard } from '@/components/SubjectCard';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useBreakpoints } from '@/hooks/use-breakpoints';
 import { useStudy } from '@/hooks/use-study';
-import { catalogStats, getChapterById, getSubjectById, getTopicById, getUnitById, subjects } from '@/content/catalog';
-import { getContinueLearningState, getSubjectProgress } from '@/features/learning/selectors';
+import {
+  catalogStats,
+  getChapterById,
+  getSubjectById,
+  getTopicById,
+  getUnitById,
+  learningUnits,
+  subjects,
+} from '@/content/catalog';
+import {
+  getContinueLearningState,
+  getRecommendedActionForLibrary,
+  getSubjectProgress,
+  getUnitProgress,
+} from '@/features/learning/selectors';
+import { rankLearningUnits } from '@/features/learning/unit-search';
 import { getElementAccentPalette } from '@/theme/element-accents';
-import { chapterRoute, subjectRoute } from '@/utils/routes';
+import { formatCount } from '@/utils/format';
+import { chapterRoute, subjectRoute, unitRoute } from '@/utils/routes';
 
 export default function HomeScreen() {
   const theme = useAppTheme();
   const { isDesktop, isTablet } = useBreakpoints();
   const router = useRouter();
   const { progress } = useStudy();
+  const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
 
-  const chemistry = subjects[0];
-  const subjectProgress = getSubjectProgress(progress, chemistry);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 120);
+
+    return () => clearTimeout(timeout);
+  }, [query]);
+
+  const featuredSubject = subjects[0];
   const continueState = getContinueLearningState(progress, subjects);
-  const continueSubject = continueState ? getSubjectById(continueState.subjectId) : undefined;
-  const continueTopic = continueState ? getTopicById(continueState.subjectId, continueState.topicId) : undefined;
+  const libraryRecommendation = getRecommendedActionForLibrary(progress, subjects);
   const continueUnit = continueState
     ? getUnitById(continueState.subjectId, continueState.topicId, continueState.unitId)
     : undefined;
@@ -35,8 +62,54 @@ export default function HomeScreen() {
         continueState.chapterId
       )
     : undefined;
-  const continueAccent = getElementAccentPalette(continueUnit?.id, theme);
-  const featuredUnits = chemistry.topics[0]?.learningUnits.slice(0, 5) ?? [];
+  const recommendedSubject = libraryRecommendation
+    ? getSubjectById(libraryRecommendation.subjectId)
+    : undefined;
+  const recommendedTopic = libraryRecommendation
+    ? getTopicById(libraryRecommendation.subjectId, libraryRecommendation.topicId)
+    : undefined;
+  const recommendedUnit = libraryRecommendation
+    ? getUnitById(libraryRecommendation.subjectId, libraryRecommendation.topicId, libraryRecommendation.unitId)
+    : undefined;
+  const recommendedChapter = libraryRecommendation
+    ? getChapterById(
+        libraryRecommendation.subjectId,
+        libraryRecommendation.topicId,
+        libraryRecommendation.unitId,
+        libraryRecommendation.chapterId
+      )
+    : undefined;
+  const recommendedAccent = getElementAccentPalette(recommendedUnit?.id, theme);
+  const globalSearchState = useMemo(
+    () => rankLearningUnits(learningUnits, debouncedQuery, 8),
+    [debouncedQuery]
+  );
+  const isSearching = debouncedQuery.trim().length > 0;
+  const featuredUnits = subjects
+    .flatMap((subject) => subject.topics[0]?.learningUnits.slice(0, 1) ?? [])
+    .slice(0, 5);
+  const subjectEntries = subjects.map((subject) => {
+    const subjectProgress = getSubjectProgress(progress, subject);
+    const subjectUnits = subject.topics.reduce((count, topic) => count + topic.learningUnits.length, 0);
+    const subjectChapters = subject.topics.reduce(
+      (count, topic) =>
+        count + topic.learningUnits.reduce((unitCount, unit) => unitCount + unit.chapters.length, 0),
+      0
+    );
+
+    return {
+      subject,
+      subjectProgress,
+      detail: `${subjectProgress.completed} of ${subjectProgress.total} chapters completed`,
+      stats: [
+        formatCount(subject.topics.length, 'topic'),
+        formatCount(subjectUnits, 'unit'),
+        formatCount(subjectChapters, 'chapter reading'),
+      ],
+    };
+  });
+  const featuredSubjects = subjectEntries.slice(0, isTablet ? 2 : 1);
+  const catalogSubjects = subjectEntries.slice(featuredSubjects.length);
 
   const hero = (
     <View
@@ -111,8 +184,9 @@ export default function HomeScreen() {
                 lineHeight: 30,
               }}>
               LearnHub is a local-first reading and review platform built for serious study. The
-              live library currently opens through chemistry, but the architecture already supports
-              subjects, topics, units, chapters, flashcards, quizzes, and persistent progress.
+              current library now spans multiple scientific and quantitative subjects, while the
+              architecture continues to support subjects, topics, units, chapters, flashcards,
+              quizzes, and persistent progress.
             </Text>
           </View>
 
@@ -122,9 +196,9 @@ export default function HomeScreen() {
               gap: theme.spacing.sm,
             }}>
             <Button
-              label="Open Chemistry"
+              label={`Open ${featuredSubject.title}`}
               icon="flask-outline"
-              onPress={() => router.push(subjectRoute('chemistry'))}
+              onPress={() => router.push(subjectRoute(featuredSubject.id))}
               style={{ flex: isTablet ? 1 : undefined }}
             />
             {continueState && continueUnit && continueChapter ? (
@@ -218,7 +292,7 @@ export default function HomeScreen() {
                 fontSize: 32,
                 fontWeight: '700',
               }}>
-              Current publication state
+              Current library state
             </Text>
           </View>
           <Text
@@ -228,14 +302,14 @@ export default function HomeScreen() {
               fontSize: theme.typography.body,
               lineHeight: 26,
             }}>
-            {'The current release focuses on Chemistry -> Elements, with long-form textbooks for the first thirty elements and the full study loop wired locally on device.'}
+            {`The current release now spans ${formatCount(catalogStats.subjects, 'subject')}, ${formatCount(catalogStats.topics, 'topic')}, ${formatCount(catalogStats.units, 'learning unit')}, and the same full study loop stored locally on the device.`}
           </Text>
           <View style={{ gap: theme.spacing.sm }}>
             {[
-              `${catalogStats.subjects} subject`,
-              `${catalogStats.topics} topic`,
-              `${catalogStats.units} learning units`,
-              `${catalogStats.chapters} chapters`,
+              formatCount(catalogStats.subjects, 'subject'),
+              formatCount(catalogStats.topics, 'topic'),
+              formatCount(catalogStats.units, 'learning unit'),
+              formatCount(catalogStats.chapters, 'chapter'),
             ].map((item) => (
               <View
                 key={item}
@@ -290,7 +364,7 @@ export default function HomeScreen() {
               fontSize: 24,
               lineHeight: 34,
             }}>
-            {'Home -> Subject -> Topic -> Learning Unit -> Chapter -> Flashcards / Quiz'}
+            {'Home > Subject > Topic > Learning Unit > Chapter > Flashcards and Quiz'}
           </Text>
         </View>
       </View>
@@ -299,104 +373,207 @@ export default function HomeScreen() {
 
   return (
     <AppShell hero={hero}>
-      {continueState && continueSubject && continueTopic && continueUnit && continueChapter ? (
+      {libraryRecommendation &&
+      recommendedSubject &&
+      recommendedTopic &&
+      recommendedUnit &&
+      recommendedChapter ? (
         <View style={{ gap: theme.spacing.md }}>
           <SectionHeader
-            eyebrow="Continue Learning"
-            title={`Resume ${continueUnit.title}`}
-            description={`Return to ${continueChapter.title} in ${continueTopic.title} and continue from the last local checkpoint.`}
-            accent={continueAccent}
+            eyebrow="Recommended Next"
+            title={
+              libraryRecommendation.isStartHere
+                ? `Start with ${recommendedUnit.title}`
+                : `Continue with ${recommendedUnit.title}`
+            }
+            description={libraryRecommendation.reason}
+            accent={recommendedAccent}
           />
-          <View
-            style={{
-              gap: theme.spacing.lg,
-              borderRadius: theme.radius.xl,
-              borderWidth: 1,
-              borderColor: continueAccent.line,
-              backgroundColor: theme.colors.surfaceElevated,
-              padding: theme.spacing.xl,
-            }}>
-            <View style={{ gap: theme.spacing.sm }}>
-              <Text
-                style={{
-                  color: continueAccent.accent,
-                  fontFamily: theme.fonts.mono,
-                  fontSize: 12,
-                  fontWeight: '700',
-                  letterSpacing: 1,
-                  textTransform: 'uppercase',
-                }}>
-                Last visited chapter
-              </Text>
-              <Text
-                style={{
-                  color: theme.colors.text,
-                  fontFamily: theme.fonts.display,
-                  fontSize: 34,
-                  fontWeight: '700',
-                }}>
-                {continueChapter.title}
-              </Text>
-              <Text
-                style={{
-                  color: theme.colors.textMuted,
-                  fontFamily: theme.fonts.body,
-                  fontSize: theme.typography.body,
-                  lineHeight: 26,
-                }}>
-                {continueChapter.overview}
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: isTablet ? 'row' : 'column',
-                gap: theme.spacing.sm,
-              }}>
-              <Button
-                label="Resume Chapter"
-                icon="book-outline"
-                onPress={() =>
-                  router.push(
-                    chapterRoute(
-                      continueState.subjectId,
-                      continueState.topicId,
-                      continueState.unitId,
-                      continueState.chapterId
-                    )
-                  )
-                }
-                accent={continueAccent}
-              />
-              <Button
-                label="Open Subject"
-                variant="secondary"
-                icon="library-outline"
-                onPress={() => router.push(subjectRoute(continueState.subjectId))}
-                accent={continueAccent}
-              />
-            </View>
-          </View>
+          <RecommendedActionCard
+            eyebrow={recommendedChapter.title}
+            title={`${recommendedSubject.title} • ${recommendedTopic.title}`}
+            description={`${recommendedChapter.overview} ${libraryRecommendation.prerequisiteLabel ? `${libraryRecommendation.prerequisiteLabel}.` : ''}`}
+            ctaLabel={libraryRecommendation.isStartHere ? 'Start Chapter' : 'Resume Chapter'}
+            onPress={() =>
+              router.push(
+                chapterRoute(
+                  libraryRecommendation.subjectId,
+                  libraryRecommendation.topicId,
+                  libraryRecommendation.unitId,
+                  libraryRecommendation.chapterId
+                )
+              )
+            }
+            tags={[
+              recommendedUnit.shortTitle,
+              recommendedTopic.title,
+              libraryRecommendation.isStartHere ? 'Start Here' : 'Next Chapter',
+            ]}
+            accent={recommendedAccent}
+          />
         </View>
       ) : null}
 
       <View style={{ gap: theme.spacing.md }}>
         <SectionHeader
+          eyebrow="Search"
+          title="Find the next unit quickly"
+          description={
+            isSearching
+              ? globalSearchState.results.length === 0
+                ? `No strong local matches found for "${debouncedQuery.trim()}".`
+                : globalSearchState.showingFallback
+                  ? `Showing the closest local matches for "${debouncedQuery.trim()}".`
+                  : `Showing ${formatCount(globalSearchState.results.length, 'ranked result')} across the full library.`
+              : 'Search across all seeded subjects, topics, and units without leaving the home screen.'
+          }
+        />
+        <SearchBar
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search the full library by unit title or keyword"
+        />
+        {isSearching && globalSearchState.results.length > 0 ? (
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: theme.spacing.md,
+            }}>
+            {globalSearchState.results.map((result) => {
+              const resultSubject = getSubjectById(result.unit.subjectId);
+              const resultTopic = getTopicById(result.unit.subjectId, result.unit.topicId);
+              const unitProgress = getUnitProgress(progress, result.unit);
+
+              if (!resultSubject || !resultTopic) {
+                return null;
+              }
+
+              return (
+                <View
+                  key={result.unit.id}
+                  style={{ width: isDesktop ? '31.8%' : isTablet ? '48%' : '100%' }}>
+                  <LearningUnitCard
+                    unit={result.unit}
+                    progressPercentage={unitProgress.percentage}
+                    detail={`${resultSubject.title} • ${resultTopic.title}`}
+                    searchMatchLabel={result.matchLabel}
+                    href={unitRoute(resultSubject.id, resultTopic.id, result.unit.id)}
+                    onPress={() =>
+                      router.push(unitRoute(resultSubject.id, resultTopic.id, result.unit.id))
+                    }
+                  />
+                </View>
+              );
+            })}
+          </View>
+        ) : null}
+      </View>
+
+      <View style={{ gap: theme.spacing.md }}>
+        <SectionHeader
           eyebrow="Subjects"
           title="Start from the library"
-          description="The current interface exposes one live subject, but the app model is already general-purpose and multi-subject ready."
+          description="The current interface now exposes multiple live subjects, and each one branches into topic-based study paths while the app model remains general-purpose and multi-subject-ready."
         />
-        <SubjectCard
-          subject={chemistry}
-          progressPercentage={subjectProgress.percentage}
-          detail={`${subjectProgress.completed} of ${subjectProgress.total} chapters completed`}
-          stats={[
-            `${chemistry.topics.length} topic`,
-            `${chemistry.topics[0].learningUnits.length} units`,
-            `${catalogStats.chapters} chapter readings`,
-          ]}
-          onPress={() => router.push(subjectRoute(chemistry.id))}
-        />
+        <View style={{ gap: theme.spacing.lg }}>
+          <View
+            style={{
+              flexDirection: isTablet ? 'row' : 'column',
+              gap: theme.spacing.md,
+            }}>
+            {featuredSubjects.map(({ subject, subjectProgress, detail, stats }, index) => (
+              <View key={subject.id} style={{ flex: 1 }}>
+                <SubjectCard
+                  subject={subject}
+                  progressPercentage={subjectProgress.percentage}
+                  detail={detail}
+                  href={subjectRoute(subject.id)}
+                  stats={stats}
+                  eyebrow={index === 0 ? 'Featured Subject' : 'Curated Subject'}
+                  onPress={() => router.push(subjectRoute(subject.id))}
+                />
+              </View>
+            ))}
+          </View>
+
+          {catalogSubjects.length > 0 ? (
+            <View
+              style={{
+                gap: theme.spacing.lg,
+                borderRadius: theme.radius.xl,
+                borderWidth: 1,
+                borderColor: theme.colors.border,
+                backgroundColor: theme.colors.surfaceOverlay,
+                padding: isTablet ? theme.spacing.xl : theme.spacing.lg,
+              }}>
+              <View
+                style={{
+                  flexDirection: isTablet ? 'row' : 'column',
+                  alignItems: isTablet ? 'center' : 'flex-start',
+                  justifyContent: 'space-between',
+                  gap: theme.spacing.sm,
+                }}>
+                <View style={{ gap: theme.spacing.xs }}>
+                  <Text
+                    style={{
+                      color: theme.colors.teal,
+                      fontFamily: theme.fonts.mono,
+                      fontSize: 12,
+                      fontWeight: '700',
+                      letterSpacing: 1,
+                      textTransform: 'uppercase',
+                    }}>
+                    Browse All Subjects
+                  </Text>
+                  <Text
+                    style={{
+                      color: theme.colors.text,
+                      fontFamily: theme.fonts.display,
+                      fontSize: isTablet ? 28 : 24,
+                      fontWeight: '700',
+                    }}>
+                    Curated study catalog
+                  </Text>
+                </View>
+                <Text
+                  style={{
+                    color: theme.colors.textSoft,
+                    fontFamily: theme.fonts.mono,
+                    fontSize: 12,
+                    fontWeight: '700',
+                    letterSpacing: 0.8,
+                    textTransform: 'uppercase',
+                  }}>
+                  {formatCount(subjects.length, 'subject')}
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  gap: theme.spacing.md,
+                }}>
+                {catalogSubjects.map(({ subject, subjectProgress, detail, stats }) => (
+                  <View
+                    key={subject.id}
+                    style={{ width: isDesktop ? '31.8%' : isTablet ? '48%' : '100%' }}>
+                    <SubjectCard
+                      subject={subject}
+                      progressPercentage={subjectProgress.percentage}
+                      detail={detail}
+                      href={subjectRoute(subject.id)}
+                      stats={stats}
+                      variant="compact"
+                      onPress={() => router.push(subjectRoute(subject.id))}
+                    />
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
+        </View>
       </View>
     </AppShell>
   );

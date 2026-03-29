@@ -3,10 +3,12 @@ import { Text, View } from 'react-native';
 import type { Chapter } from '@/content/schema';
 import { useElementAccent } from '@/hooks/use-element-accent';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useBreakpoints } from '@/hooks/use-breakpoints';
 import { Button } from '@/components/Button';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ProgressBadge } from '@/components/ProgressBadge';
 import { formatReadingTime } from '@/utils/format';
+import { interpolateByWidth } from '@/utils/responsive';
 
 interface ChapterCardProps {
   unitId: string;
@@ -25,6 +27,17 @@ export function ChapterCard({
 }: ChapterCardProps) {
   const theme = useAppTheme();
   const accent = useElementAccent(unitId);
+  const { width, isTablet } = useBreakpoints();
+  const compact = !isTablet;
+  const titleSize = Math.round(
+    interpolateByWidth({
+      width,
+      minValue: 22,
+      maxValue: 28,
+      minWidth: 320,
+      maxWidth: 768,
+    })
+  );
 
   return (
     <View
@@ -35,7 +48,7 @@ export function ChapterCard({
         borderWidth: 1,
         borderColor: accent.line,
         backgroundColor: theme.colors.surfaceElevated,
-        padding: theme.spacing.xl,
+        padding: compact ? theme.spacing.lg : theme.spacing.xl,
       }}>
       <View
         style={{
@@ -49,10 +62,11 @@ export function ChapterCard({
       />
       <View
         style={{
-          flexDirection: 'row',
+          flexDirection: compact ? 'column' : 'row',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
           gap: theme.spacing.md,
+          minWidth: 0,
         }}>
         <View style={{ flex: 1, gap: theme.spacing.xs }}>
           <Text
@@ -70,8 +84,10 @@ export function ChapterCard({
             style={{
               color: theme.colors.text,
               fontFamily: theme.fonts.display,
-              fontSize: 28,
+              fontSize: titleSize,
               fontWeight: '700',
+              lineHeight: Math.round(titleSize * 1.15),
+              flexShrink: 1,
             }}>
             {chapter.title}
           </Text>
@@ -102,6 +118,7 @@ export function ChapterCard({
             backgroundColor: accent.panel,
             paddingHorizontal: theme.spacing.sm,
             paddingVertical: 8,
+            maxWidth: '100%',
           }}>
           <Text
             style={{
@@ -110,6 +127,8 @@ export function ChapterCard({
               fontSize: 12,
               fontWeight: '700',
               letterSpacing: 0.6,
+              flexShrink: 1,
+              lineHeight: 18,
               textTransform: 'uppercase',
             }}>
             {formatReadingTime(chapter.estimatedMinutes)}
@@ -124,6 +143,7 @@ export function ChapterCard({
               backgroundColor: theme.colors.surfaceOverlay,
               paddingHorizontal: theme.spacing.sm,
               paddingVertical: 8,
+              maxWidth: '100%',
             }}>
             <Text
               style={{
@@ -132,6 +152,8 @@ export function ChapterCard({
                 fontSize: 12,
                 fontWeight: '700',
                 letterSpacing: 0.6,
+                flexShrink: 1,
+                lineHeight: 18,
                 textTransform: 'uppercase',
               }}>
               {scoreLabel}

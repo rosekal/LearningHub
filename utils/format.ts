@@ -10,6 +10,11 @@ export function formatQuizScore(score: number, total: number) {
   return `${score}/${total}`;
 }
 
+export function formatCount(value: number, singular: string, plural?: string) {
+  const label = value === 1 ? singular : plural ?? `${singular}s`;
+  return `${value} ${label}`;
+}
+
 export function titleCase(value: string) {
   return value
     .split(' ')

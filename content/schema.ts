@@ -4,6 +4,7 @@ export interface Subject {
   description: string;
   tagline: string;
   accent: string;
+  recommendedFirstTopicId?: string;
   topics: Topic[];
 }
 
@@ -13,6 +14,9 @@ export interface Topic {
   title: string;
   description: string;
   sectionLabel: string;
+  recommendedFirstUnitId?: string;
+  prerequisiteTopicIds?: string[];
+  difficulty?: ContentDifficulty;
   learningUnits: LearningUnit[];
 }
 
@@ -26,6 +30,8 @@ export interface LearningUnit {
   shortTitle: string;
   summary: string;
   overview: string;
+  difficulty?: ContentDifficulty;
+  prerequisiteUnitIds?: string[];
   hero: {
     eyebrow: string;
     title: string;
@@ -35,6 +41,7 @@ export interface LearningUnit {
   metadata: Array<{ label: string; value: string }>;
   glossary: GlossaryTerm[];
   searchTerms: string[];
+  references?: ReferenceCitation[];
   chapters: Chapter[];
 }
 
@@ -43,12 +50,30 @@ export interface Chapter {
   title: string;
   overview: string;
   estimatedMinutes: number;
+  difficulty?: ContentDifficulty;
+  prerequisiteChapterIds?: string[];
+  references?: ReferenceCitation[];
   blocks: ContentBlock[];
   flashcards: Flashcard[];
   quiz: QuizQuestion[];
 }
 
-export type ContentBlock = ParagraphBlock | BulletListBlock | FigureContentBlock;
+export type ContentDifficulty = 'introductory' | 'intermediate' | 'advanced';
+
+export interface ReferenceCitation {
+  title: string;
+  detail?: string;
+  url?: string;
+}
+
+export type ContentBlock =
+  | ParagraphBlock
+  | BulletListBlock
+  | FigureContentBlock
+  | EquationBlock
+  | TableBlock
+  | WorkedExampleBlock
+  | ExerciseSetBlock;
 
 export interface ParagraphBlock {
   id: string;
@@ -61,6 +86,41 @@ export interface BulletListBlock {
   type: 'bullet-list';
   title?: string;
   items: string[];
+}
+
+export interface EquationBlock {
+  id: string;
+  type: 'equation';
+  title?: string;
+  expression: string;
+  latex?: string;
+  explanation?: string;
+}
+
+export interface TableBlock {
+  id: string;
+  type: 'table';
+  title?: string;
+  columns: string[];
+  rows: string[][];
+  note?: string;
+}
+
+export interface WorkedExampleBlock {
+  id: string;
+  type: 'worked-example';
+  title: string;
+  prompt: string;
+  steps: string[];
+  takeaway?: string;
+}
+
+export interface ExerciseSetBlock {
+  id: string;
+  type: 'exercise-set';
+  title: string;
+  instructions: string;
+  questions: string[];
 }
 
 export type FigureVariant =
@@ -199,6 +259,7 @@ export interface QuizQuestion {
   type: 'multiple-choice' | 'true-false';
   prompt: string;
   explanation: string;
+  difficulty?: ContentDifficulty;
   options: QuizOption[];
   correctOptionId: string;
 }
@@ -230,11 +291,29 @@ export interface ContinueLearningState {
   updatedAt: string;
 }
 
+export type FlashcardConfidence = 'hard' | 'unsure' | 'easy';
+
+export interface QuizMissedQuestionState {
+  questionId: string;
+  selectedOptionId?: string;
+  correctOptionId: string;
+}
+
+export interface ChapterQuizReviewState {
+  missedQuestions: QuizMissedQuestionState[];
+  reviewedQuestionIds: string[];
+  lastAttemptQuestionIds: string[];
+  updatedAt: string;
+}
+
 export interface StudyProgress {
   completedChapterKeys: string[];
+  openedChapterKeys: string[];
   bookmarks: Bookmark[];
   quizResults: Record<string, QuizResult>;
+  quizReviewState: Record<string, ChapterQuizReviewState>;
   reviewedFlashcards: Record<string, string[]>;
+  flashcardConfidence: Record<string, Record<string, FlashcardConfidence>>;
   lastVisited?: ContinueLearningState;
 }
 

@@ -1,22 +1,15 @@
 import type { GlossaryTerm } from '@/content/schema';
+import type { SectionKey, SectionSeed } from '@/content/subjects/shared/sectionSeeds';
 import { additionalChemistryElementSeeds } from '@/content/subjects/chemistry/additionalElementSeeds';
+import { actinideElementSeeds } from '@/content/subjects/chemistry/actinideElementSeeds';
+import { earlyPeriodSixElementSeeds } from '@/content/subjects/chemistry/earlyPeriodSixElementSeeds';
+import { latePeriodFiveElementSeeds } from '@/content/subjects/chemistry/latePeriodFiveElementSeeds';
+import { latePeriodSixElementSeeds } from '@/content/subjects/chemistry/latePeriodSixElementSeeds';
+import { latePeriodSixHeavyElementSeeds } from '@/content/subjects/chemistry/latePeriodSixHeavyElementSeeds';
+import { midPeriodicElementSeeds } from '@/content/subjects/chemistry/midPeriodicElementSeeds';
+import { postZincElementSeeds } from '@/content/subjects/chemistry/postZincElementSeeds';
+import { superheavyElementSeeds } from '@/content/subjects/chemistry/superheavyElementSeeds';
 import { transitionElementSeeds } from '@/content/subjects/chemistry/transitionElementSeeds';
-
-export type SectionKey =
-  | 'classification'
-  | 'electronic'
-  | 'physical'
-  | 'reactivity'
-  | 'occurrence'
-  | 'isotopes'
-  | 'production'
-  | 'applied';
-
-export interface SectionSeed {
-  focusNote: string;
-  highlights: string[];
-  facts: string[];
-}
 
 export interface ElementSeed {
   id: string;
@@ -37,6 +30,8 @@ export interface ElementSeed {
   glossaryExtras: GlossaryTerm[];
   sections: Record<SectionKey, SectionSeed>;
 }
+
+export type { SectionKey, SectionSeed } from '@/content/subjects/shared/sectionSeeds';
 
 function section(focusNote: string, highlights: string[], facts: string[]): SectionSeed {
   return { focusNote, highlights, facts };
@@ -120,7 +115,7 @@ export const chemistryElementSeeds: ElementSeed[] = [
           'a colorless, odorless, extremely low-density diatomic gas',
           'it has the lowest density and among the highest diffusivities of any gas',
           'H2 molecules interact only weakly, so melting and boiling points are exceptionally low',
-          'liquid hydrogen is a cryogenic fluid and compressed hydrogen is a high-energy industrial gas',
+          'liquid hydrogen as a cryogenic fluid, while compressed hydrogen is a common industrial storage form with high gravimetric energy but low volumetric energy density',
           'its low ignition energy and ability to leak through small defects demand careful containment',
         ]
       ),
@@ -141,7 +136,7 @@ export const chemistryElementSeeds: ElementSeed[] = [
         ]
       ),
       occurrence: section(
-        'Hydrogen dominates the visible universe, yet on Earth it is mostly locked into compounds rather than encountered as free elemental gas.',
+        'Hydrogen is the most abundant element in the universe, yet on Earth it is mostly locked into compounds rather than encountered as free elemental gas.',
         [
           'Terrestrial hydrogen chemistry is inseparable from water, hydrocarbons, biomass, and hydrated minerals.',
           'Astronomical abundance makes hydrogen the starting point for stellar structure and cosmic chemical evolution.',
@@ -225,7 +220,7 @@ export const chemistryElementSeeds: ElementSeed[] = [
       'It links atomic structure to low-temperature physics, natural-gas recovery, spectroscopy, and strategic resource management.',
     heroFacts: [
       'Filled 1s shell',
-      'Lowest boiling point of any element',
+      'Lowest boiling point of any known substance',
       'Second most abundant element in the universe',
       'Essential cryogen for superconducting magnets',
     ],
@@ -270,14 +265,14 @@ export const chemistryElementSeeds: ElementSeed[] = [
       physical: section(
         'The scientific importance of helium comes far more from its physical behavior than from ordinary chemistry.',
         [
-          'Helium has the lowest boiling point of any element and stays liquid only under very low temperatures.',
+          'Helium has the lowest boiling point of any known substance and stays liquid only under very low temperatures.',
           'Weak interatomic attractions and low polarizability keep condensed helium unusually elusive.',
           'Liquid helium-4 enters a superfluid regime that made helium central to twentieth-century low-temperature physics.',
           'Because helium expands rapidly on warming, cryogenic engineering depends on careful boil-off control.',
         ],
         [
           'a colorless, odorless, monatomic gas',
-          'it has the lowest boiling point of any element and does not solidify at one atmosphere',
+          'it has the lowest boiling point of any known substance and does not solidify at one atmosphere',
           'very weak interatomic attractions arise from closed-shell atoms with low polarizability',
           'liquid helium, including the superfluid behavior of helium-4 below the lambda point',
           'cryogenic systems must minimize boil-off and account for rapid gas expansion',
@@ -342,7 +337,7 @@ export const chemistryElementSeeds: ElementSeed[] = [
         [
           'recovery from helium-bearing natural gas followed by low-temperature separation',
           'natural gas processing is dominant because atmospheric helium concentration is far too low for economical bulk recovery',
-          'small amounts can be reclaimed by recycling boil-off in laboratories and hospitals',
+          'recycling boil-off in laboratories and hospitals can reclaim small additional amounts',
           'purification relies on cryogenic fractionation, adsorption, and compression steps',
           'because helium is finite on human timescales once released, conservation and recycling are strategically important',
         ]
@@ -587,7 +582,7 @@ export const chemistryElementSeeds: ElementSeed[] = [
           'a hard, light, steel-gray metal with high stiffness and low density',
           'it combines low density with a high elastic modulus and good X-ray transparency',
           'a tightly bound metallic lattice and low atomic mass produce an unusual stiffness-to-weight ratio',
-          'beryllium metal, BeO ceramics, and X-ray window materials',
+          'beryllium metal, beryllium-containing alloys, and beryllium oxide ceramics',
           'machining and powder handling require strict containment because inhaled beryllium dust is highly toxic',
         ]
       ),
@@ -741,7 +736,7 @@ export const chemistryElementSeeds: ElementSeed[] = [
           'a hard, brittle, dark metalloid with several complex allotropes',
           'crystalline boron has high hardness and a very high melting range',
           'extended covalent networks produce rigidity, low volatility, and poor metallic conductivity',
-          'amorphous boron powders, crystalline allotropes, and boron-rich ceramics',
+          'amorphous boron powders, crystalline boron allotropes, and boron-rich ceramic materials',
           'fine powders can be reactive at elevated temperature even when bulk boron appears relatively inert',
         ]
       ),
@@ -956,7 +951,7 @@ export const chemistryElementSeeds: ElementSeed[] = [
           'The production route strongly determines whether the final material conducts, adsorbs, cuts, lubricates, or reinforces.',
         ],
         [
-          'industrial carbon materials arise from coking, pyrolysis, graphitization, and synthetic high-pressure or vapor-phase routes',
+          'industrial carbon materials arise from coking, pyrolysis, graphitization, activation, and specialized high-pressure or vapor-phase synthetic routes',
           'coke production remains central to metallurgy, while graphitic and activated carbons are tailored by controlled heat treatment',
           'synthetic diamond and advanced carbon nanomaterials use specialized high-energy processing',
           'activation, purification, and microstructure control determine final material performance',
@@ -1357,7 +1352,7 @@ export const chemistryElementSeeds: ElementSeed[] = [
           'a pale yellow, highly corrosive diatomic gas',
           'it is dense for a light gas and is aggressively reactive even at low temperature',
           'the weak F-F bond and strong product bonds explain why physical containment is tightly coupled to chemistry',
-          'compressed fluorine gas, anhydrous HF-derived feed systems, and fluoride salts',
+          'compressed fluorine gas; related industrial fluorine chemistry also relies on anhydrous HF-based feed systems and fluoride salts as process intermediates or compounds',
           'materials selection is critical because many substances ignite or corrode in fluorine service',
         ]
       ),
@@ -1599,4 +1594,12 @@ export const chemistryElementSeeds: ElementSeed[] = [
   },
   ...additionalChemistryElementSeeds,
   ...transitionElementSeeds,
+  ...postZincElementSeeds,
+  ...midPeriodicElementSeeds,
+  ...latePeriodFiveElementSeeds,
+  ...earlyPeriodSixElementSeeds,
+  ...latePeriodSixElementSeeds,
+  ...latePeriodSixHeavyElementSeeds,
+  ...actinideElementSeeds,
+  ...superheavyElementSeeds,
 ];

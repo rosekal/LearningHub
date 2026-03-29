@@ -1,37 +1,55 @@
+import { type Href, Link } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
 import type { LearningUnit } from '@/content/schema';
 import { useElementAccent } from '@/hooks/use-element-accent';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useBreakpoints } from '@/hooks/use-breakpoints';
 import { ProgressBadge } from '@/components/ProgressBadge';
+import { interpolateByWidth } from '@/utils/responsive';
 
 interface LearningUnitCardProps {
   unit: LearningUnit;
   progressPercentage: number;
   detail: string;
+  searchMatchLabel?: string;
   onPress: () => void;
+  href?: Href;
 }
 
 export function LearningUnitCard({
   unit,
   progressPercentage,
   detail,
+  searchMatchLabel,
   onPress,
+  href,
 }: LearningUnitCardProps) {
   const theme = useAppTheme();
   const accent = useElementAccent(unit.id);
+  const { width, isTablet } = useBreakpoints();
+  const compact = !isTablet;
+  const titleSize = Math.round(
+    interpolateByWidth({
+      width,
+      minValue: 24,
+      maxValue: 30,
+      minWidth: 320,
+      maxWidth: 768,
+    })
+  );
 
-  return (
+  const card = (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole={href ? 'link' : 'button'}
+      accessibilityLabel={`Open ${unit.title}`}
       onPress={onPress}
       style={({ hovered, pressed }) => ({
-        gap: theme.spacing.lg,
         overflow: 'hidden',
         borderRadius: theme.radius.xl,
         borderWidth: 1,
         borderColor: accent.line,
-        backgroundColor: theme.colors.surfaceElevated,
+        backgroundColor: accent.panel,
         opacity: pressed ? 0.92 : 1,
         transform: [{ translateY: hovered ? -4 : pressed ? 1 : 0 }],
         shadowColor: accent.accent,
@@ -44,7 +62,7 @@ export function LearningUnitCard({
         style={{
           gap: theme.spacing.lg,
           backgroundColor: accent.heroFrom,
-          padding: theme.spacing.xl,
+          padding: compact ? theme.spacing.lg : theme.spacing.xl,
         }}>
         <View
           style={{
@@ -59,10 +77,11 @@ export function LearningUnitCard({
         />
         <View
           style={{
-            flexDirection: 'row',
+            flexDirection: compact ? 'column' : 'row',
             alignItems: 'flex-start',
             justifyContent: 'space-between',
             gap: theme.spacing.md,
+            minWidth: 0,
           }}>
           <View style={{ flex: 1, gap: theme.spacing.xs }}>
             <Text
@@ -80,28 +99,32 @@ export function LearningUnitCard({
               style={{
                 color: accent.accentContrast,
                 fontFamily: theme.fonts.display,
-                fontSize: 30,
+                fontSize: titleSize,
                 fontWeight: '700',
+                lineHeight: Math.round(titleSize * 1.15),
+                flexShrink: 1,
               }}>
               {unit.title}
             </Text>
           </View>
           <View
             style={{
-              minWidth: 68,
-              minHeight: 68,
+              minWidth: compact ? 60 : 68,
+              minHeight: compact ? 60 : 68,
               borderRadius: 22,
               alignItems: 'center',
               justifyContent: 'center',
               borderWidth: 1,
               borderColor: 'rgba(255,255,255,0.28)',
               backgroundColor: 'rgba(255,255,255,0.08)',
+              alignSelf: compact ? 'flex-start' : 'auto',
+              paddingHorizontal: compact ? theme.spacing.md : theme.spacing.sm,
             }}>
             <Text
               style={{
                 color: accent.accentContrast,
                 fontFamily: theme.fonts.display,
-                fontSize: 24,
+                fontSize: compact ? 22 : 24,
                 fontWeight: '700',
               }}>
               {unit.metadata[0]?.value}
@@ -114,47 +137,149 @@ export function LearningUnitCard({
             color: 'rgba(248, 247, 243, 0.86)',
             fontFamily: theme.fonts.body,
             fontSize: theme.typography.body,
-            lineHeight: 26,
+            lineHeight: compact ? 24 : 26,
           }}>
           {unit.summary}
         </Text>
       </View>
 
-      <View style={{ gap: theme.spacing.lg, padding: theme.spacing.xl }}>
+      <View
+        style={{
+          gap: theme.spacing.lg,
+          borderTopWidth: 1,
+          borderTopColor: accent.line,
+          backgroundColor: accent.panel,
+          padding: compact ? theme.spacing.lg : theme.spacing.xl,
+        }}>
         <View
           style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: theme.spacing.sm,
+            gap: theme.spacing.md,
           }}>
-          {unit.hero.facts.slice(0, 3).map((fact) => (
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: theme.spacing.sm,
+            }}>
+            {searchMatchLabel ? (
+              <View
+                style={{
+                  borderRadius: theme.radius.pill,
+                  borderWidth: 1,
+                  borderColor: accent.line,
+                  backgroundColor: theme.colors.surfaceOverlay,
+                  paddingHorizontal: theme.spacing.sm,
+                  paddingVertical: 8,
+                  maxWidth: '100%',
+                }}>
+                <Text
+                  style={{
+                    color: accent.accent,
+                    fontFamily: theme.fonts.mono,
+                    fontSize: 11,
+                    fontWeight: '700',
+                    letterSpacing: 0.7,
+                    flexShrink: 1,
+                    lineHeight: 16,
+                    textTransform: 'uppercase',
+                  }}>
+                  {searchMatchLabel}
+                </Text>
+              </View>
+            ) : null}
             <View
-              key={fact}
               style={{
                 borderRadius: theme.radius.pill,
                 borderWidth: 1,
                 borderColor: accent.line,
-                backgroundColor: accent.panel,
+                backgroundColor: theme.colors.surfaceOverlay,
                 paddingHorizontal: theme.spacing.sm,
                 paddingVertical: 8,
+                maxWidth: '100%',
               }}>
               <Text
                 style={{
-                  color: accent.accentStrong,
+                  color: theme.colors.textSoft,
                   fontFamily: theme.fonts.mono,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: '700',
-                  letterSpacing: 0.6,
+                  letterSpacing: 0.7,
+                  flexShrink: 1,
+                  lineHeight: 16,
                   textTransform: 'uppercase',
                 }}>
-                {fact}
+                {unit.chapters.length} chapters
               </Text>
             </View>
-          ))}
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: theme.spacing.sm,
+            }}>
+            {unit.hero.facts.slice(0, 3).map((fact) => (
+              <View
+                key={fact}
+                style={{
+                  borderRadius: theme.radius.pill,
+                  borderWidth: 1,
+                  borderColor: accent.line,
+                  backgroundColor: theme.colors.surfaceOverlay,
+                  paddingHorizontal: theme.spacing.sm,
+                  paddingVertical: 8,
+                  maxWidth: '100%',
+                }}>
+                <Text
+                  style={{
+                    color: accent.accentStrong,
+                    fontFamily: theme.fonts.mono,
+                    fontSize: 12,
+                    fontWeight: '700',
+                    letterSpacing: 0.6,
+                    flexShrink: 1,
+                    lineHeight: 18,
+                    textTransform: 'uppercase',
+                  }}>
+                  {fact}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
 
-        <ProgressBadge percentage={progressPercentage} detail={detail} accent={accent} />
+        <View
+          style={{
+            gap: theme.spacing.md,
+            borderRadius: theme.radius.lg,
+            borderWidth: 1,
+            borderColor: accent.line,
+            backgroundColor: 'rgba(255,255,255,0.38)',
+            padding: theme.spacing.md,
+          }}>
+          <Text
+            style={{
+              color: accent.accent,
+              fontFamily: theme.fonts.mono,
+              fontSize: 11,
+              fontWeight: '700',
+              letterSpacing: 0.8,
+              textTransform: 'uppercase',
+            }}>
+            Study progress
+          </Text>
+          <ProgressBadge percentage={progressPercentage} detail={detail} accent={accent} />
+        </View>
       </View>
     </Pressable>
+  );
+
+  return href ? (
+    <Link href={href} asChild>
+      {card}
+    </Link>
+  ) : (
+    card
   );
 }

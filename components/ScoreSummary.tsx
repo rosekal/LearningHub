@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 
 import { useAppTheme } from '@/hooks/use-app-theme';
@@ -11,9 +12,19 @@ interface ScoreSummaryProps {
   bestScore?: number;
   onRetry: () => void;
   accent?: ElementAccentPalette;
+  retryLabel?: string;
+  footer?: ReactNode;
 }
 
-export function ScoreSummary({ score, total, bestScore, onRetry, accent }: ScoreSummaryProps) {
+export function ScoreSummary({
+  score,
+  total,
+  bestScore,
+  onRetry,
+  accent,
+  retryLabel = 'Retry Quiz',
+  footer,
+}: ScoreSummaryProps) {
   const theme = useAppTheme();
   const percentage = total === 0 ? 0 : (score / total) * 100;
 
@@ -90,7 +101,8 @@ export function ScoreSummary({ score, total, bestScore, onRetry, accent }: Score
         </Text>
       ) : null}
 
-      <Button label="Retry Quiz" icon="refresh-outline" onPress={onRetry} accent={accent} />
+      <Button label={retryLabel} icon="refresh-outline" onPress={onRetry} accent={accent} />
+      {footer}
     </View>
   );
 }

@@ -40,6 +40,10 @@ interface ChapterDefinition {
 const subjectId = 'chemistry';
 const topicId = 'elements';
 
+function assertNever(value: never): never {
+  throw new Error(`Unhandled section key: ${String(value)}`);
+}
+
 const chapterDefinitions: ChapterDefinition[] = [
   {
     key: 'classification',
@@ -111,23 +115,277 @@ const nobleGasShells: Record<string, number[]> = {
   He: [2],
   Ne: [2, 8],
   Ar: [2, 8, 8],
+  Kr: [2, 8, 18, 8],
+  Xe: [2, 8, 18, 18, 8],
+  Rn: [2, 8, 18, 32, 18, 8],
 };
 
-function compactFigureText(text: string, maxWords = 10) {
-  const words = text.replace(/\.$/, '').split(/\s+/).filter(Boolean);
-  if (words.length <= maxWords) {
-    return words.join(' ');
-  }
+const trailingFigureConnectorPattern =
+  /\b(?:and|or|but|with|without|including|especially|because|while|where|when|which|that|than|as|of|in|on|to|for|from|by|at|into|onto|under|over|after|before)\s*$/i;
+const riskyFigureEndingPattern =
+  /\b(?:rather|mainly|chiefly|largely|primarily|particularly|especially|only|more|less|other|another)\s*$/i;
 
-  return `${words.slice(0, maxWords).join(' ')}...`;
+function normalizeInlineText(text: string) {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .trim();
 }
 
-function headlineFromText(text: string, maxWords = 4) {
-  return compactFigureText(text, maxWords);
+function trimTrailingPunctuation(text: string) {
+  return normalizeInlineText(text).replace(/[.;:,!?]+$/, '').trim();
+}
+
+function capitalizeLeading(text: string) {
+  const normalized = normalizeInlineText(text);
+  const firstLetterIndex = normalized.search(/[A-Za-z]/);
+  if (firstLetterIndex === -1) {
+    return normalized;
+  }
+
+  return (
+    normalized.slice(0, firstLetterIndex) +
+    normalized.charAt(firstLetterIndex).toUpperCase() +
+    normalized.slice(firstLetterIndex + 1)
+  );
+}
+
+function normalizeParagraphText(text: string) {
+  return capitalizeLeading(text);
+}
+
+function formatStandaloneText(text: string) {
+  return capitalizeLeading(trimTrailingPunctuation(text));
+}
+
+function safeFigureFragment(text: string) {
+  let fragment = trimTrailingPunctuation(text);
+
+  while (trailingFigureConnectorPattern.test(fragment)) {
+    const words = fragment.split(/\s+/).filter(Boolean);
+    if (words.length <= 1) {
+      break;
+    }
+
+    words.pop();
+    fragment = trimTrailingPunctuation(words.join(' '));
+  }
+
+  return fragment;
+}
+
+function compactFigureText(text: string, maxWords = 10) {
+  const cleaned = normalizeInlineText(text);
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  if (words.length <= maxWords) {
+    return safeFigureFragment(cleaned);
+  }
+
+  const minimumWords = Math.min(Math.max(4, Math.floor(maxWords / 2)), maxWords);
+  for (let count = maxWords; count >= minimumWords; count -= 1) {
+    const candidate = safeFigureFragment(words.slice(0, count).join(' '));
+    if (!riskyFigureEndingPattern.test(candidate)) {
+      return candidate;
+    }
+  }
+
+  return safeFigureFragment(words.slice(0, minimumWords).join(' '));
+}
+
+function headlineFromText(text: string, maxWords = 6) {
+  return capitalizeLeading(compactFigureText(text, maxWords));
+}
+
+const lowercaseInlineElementIds = new Set([
+  'hydrogen',
+  'helium',
+  'lithium',
+  'beryllium',
+  'boron',
+  'carbon',
+  'nitrogen',
+  'oxygen',
+  'fluorine',
+  'neon',
+  'sodium',
+  'magnesium',
+  'aluminum',
+  'silicon',
+  'phosphorus',
+  'sulfur',
+  'chlorine',
+  'argon',
+  'potassium',
+  'calcium',
+  'scandium',
+  'titanium',
+  'vanadium',
+  'zinc',
+  'gallium',
+  'germanium',
+]);
+
+const representativeFormOverrides: Record<string, string> = {
+  beryllium:
+    'Representative engineering forms include beryllium metal, beryllium-containing alloys, and beryllium oxide ceramics; one important application is X-ray window material.',
+  fluorine:
+    'A representative form of the element is compressed fluorine gas; related industrial fluorine chemistry also relies on anhydrous HF-based feed systems and fluoride salts as process intermediates or compounds.',
+  sodium:
+    'Representative forms include freshly cut sodium metal, stored sodium under oil or inert atmosphere, and molten sodium in specialized heat-transfer systems.',
+  magnesium:
+    'Representative forms include magnesium ribbon, bulk magnesium metal, cast magnesium alloys, and finely divided magnesium powder.',
+  aluminum:
+    'Representative forms include foil, sheet, structural alloys, electrical conductor stock, powders, and molten aluminum.',
+  silicon:
+    'Representative forms of the element include bulk silicon, polycrystalline silicon, single-crystal silicon, silicon wafers, and finely divided silicon powders.',
+  phosphorus:
+    'Representative elemental forms include white phosphorus stored under water, red phosphorus, and black phosphorus.',
+  sulfur:
+    'Representative forms include orthorhombic sulfur crystals, molten sulfur, and finely divided sulfur powders.',
+  chlorine:
+    'A representative form of the element is compressed chlorine gas and liquefied chlorine streams in industrial handling.',
+  argon:
+    'Representative forms include compressed argon gas and cryogenic liquid argon; common uses include shielding-gas cylinders, discharge tubes, and liquid-argon systems.',
+  potassium:
+    'Representative forms include freshly cut potassium metal, protected stored samples, and molten potassium under controlled conditions.',
+  calcium:
+    'Representative forms of the element include calcium metal, calcium granules or turnings, molten calcium, and protected laboratory or industrial metal stock.',
+};
+
+const physicalFormContextOverrides: Record<string, string> = {
+  hydrogen:
+    'Gaseous hydrogen, compressed hydrogen, cryogenic liquid hydrogen, and the ortho/para forms behave differently in storage and use; under ultrahigh pressure, hydrogen can also enter unusual solid phases, including metallic behavior.',
+  helium:
+    'Monatomic helium gas, liquid helium, pressurized solid helium, and the superfluid phase below the lambda point for helium-4 behave very differently even before chemical reaction begins.',
+  lithium:
+    'Bulk lithium metal, freshly cut surfaces, molten lithium, and finely divided lithium behave very differently even before chemical reaction begins.',
+  beryllium:
+    'Bulk beryllium metal, machined or powdered beryllium, beryllium-containing alloys, and beryllium oxide ceramics behave very differently even before chemical reaction begins.',
+  boron:
+    'Amorphous boron powders, crystalline boron allotropes, and boron-rich ceramic materials behave very differently even before chemical reaction begins.',
+  nitrogen:
+    'Nitrogen gas, liquid nitrogen, and low-temperature solid nitrogen phases behave very differently even before chemical reaction begins.',
+  oxygen:
+    'Gaseous oxygen, liquid oxygen, solid oxygen, dissolved oxygen, and ozone behave very differently even before chemical reaction begins.',
+  fluorine:
+    'Compressed fluorine gas and low-temperature condensed fluorine phases behave very differently even before chemical reaction begins.',
+  neon: 'Neon gas and liquid neon behave very differently even before chemical reaction begins.',
+  sodium:
+    'Bulk sodium metal, freshly cut sodium, molten sodium, and finely divided sodium or sodium dispersions behave very differently even before chemical reaction begins.',
+  magnesium:
+    'Bulk magnesium metal, magnesium ribbon, cast magnesium alloys, molten magnesium, and finely divided magnesium powder behave very differently even before chemical reaction begins.',
+  aluminum:
+    'Bulk aluminum metal, foil and sheet, structural alloys, molten aluminum, and aluminum powders behave very differently even before chemical reaction begins.',
+  silicon:
+    'Bulk silicon, polycrystalline silicon, single-crystal silicon, wafers, and finely divided silicon powders behave very differently even before chemical reaction begins.',
+  phosphorus:
+    'White phosphorus, red phosphorus, black phosphorus, and other solid allotropes behave very differently even before chemical reaction begins.',
+  sulfur:
+    'Crystalline sulfur, molten sulfur, sulfur vapors, and finely divided sulfur powders behave very differently even before chemical reaction begins.',
+  chlorine:
+    'Compressed chlorine gas and liquefied chlorine streams behave very differently even before chemical reaction begins.',
+  argon: 'Compressed argon gas and cryogenic liquid argon behave very differently even before chemical reaction begins.',
+  potassium:
+    'Bulk potassium metal, freshly cut potassium, molten potassium, and protected storage or dispersed forms behave very differently even before chemical reaction begins.',
+  calcium:
+    'Calcium metal, molten calcium, and finely divided calcium behave very differently even before chemical reaction begins.',
+};
+
+const productionOpeningOverrides: Record<string, string> = {
+  lithium:
+    'Industrial lithium supply commonly begins with extraction from brines and hard-rock minerals followed by conversion to carbonate or hydroxide; elemental lithium metal is then produced separately by fused-salt electrolysis.',
+  carbon:
+    'Industrial carbon materials arise from coking, pyrolysis, graphitization, activation, and specialized high-pressure or vapor-phase synthetic routes.',
+  aluminum:
+    'Industrial aluminum production begins with refining bauxite to alumina by the Bayer process and then electrolyzing alumina dissolved in molten cryolite in the Hall-Heroult process.',
+};
+
+const productionRouteOverrides: Record<string, string> = {
+  helium:
+    'Helium production and purification depend mainly on helium-bearing natural gas, low-temperature separation, adsorption, compression, and in some cases recycling of boil-off; these routes create different impurity profiles and economic tradeoffs.',
+  lithium:
+    'Brines, pegmatite ores, clays, and downstream electrochemical refining routes do not create the same impurity profile or the same economic tradeoffs.',
+  beryllium:
+    'Beryllium production begins from bertrandite and beryl ores, and the downstream conversion, purification, reduction, and ceramic-processing steps do not produce the same impurity profile or the same economic tradeoffs.',
+  boron:
+    'Borate minerals, boric acid and boron oxide intermediates, reduction routes, and gas-phase purification methods do not produce the same impurity profile or the same economic tradeoffs.',
+  carbon:
+    'Coal, petroleum-derived feedstocks, biomass-derived precursors, gaseous hydrocarbons, and specialized synthetic routes do not produce the same impurity profile or the same economic tradeoffs.',
+  nitrogen:
+    'Cryogenic air separation, pressure-swing adsorption, and membrane systems do not produce the same purity profile, scale, or economic tradeoffs.',
+  oxygen:
+    'Cryogenic air separation, pressure-swing adsorption, and related purification methods do not produce the same impurity profile, delivery scale, or economic tradeoffs.',
+  fluorine:
+    'HF preparation, drying, electrolysis conditions, and corrosion-resistant handling systems do not produce the same impurity profile or the same economic tradeoffs.',
+  neon:
+    'Cryogenic air-separation streams, noble-gas separation steps, and downstream purification methods do not produce the same impurity profile or the same economic tradeoffs.',
+  sodium:
+    'Molten-salt electrolysis, brine-based chlor-alkali feedstocks, and downstream sodium-compound processing routes do not produce the same impurity profile or the same economic tradeoffs.',
+  magnesium:
+    'Seawater and brine-derived magnesium chloride, dolomite or magnesite feedstocks, molten-salt electrolysis, and thermal reduction routes do not produce the same impurity profile or the same economic tradeoffs.',
+  aluminum:
+    'Bauxite quality, Bayer refining conditions, Hall-Heroult smelting conditions, recycled aluminum streams, and impurity-control steps do not produce the same impurity profile or the same economic tradeoffs.',
+  silicon:
+    'Silica feed quality, carbothermic electric-furnace reduction, chlorosilane chemistry, deposition routes such as the Siemens process, and high-purity recrystallization steps do not produce the same impurity profile or the same economic tradeoffs.',
+  phosphorus:
+    'Phosphate-rock quality, wet-process phosphoric-acid manufacture, thermal electric-furnace production of elemental phosphorus, and downstream purification steps do not produce the same impurity profile or the same economic tradeoffs.',
+  sulfur:
+    'Hydrogen-sulfide recovery streams, Claus conversion conditions, native sulfur sources, and downstream purification steps do not produce the same impurity profile or the same economic tradeoffs.',
+  chlorine:
+    'Brine quality, membrane-cell, diaphragm-cell, and older mercury-cell chlor-alkali routes, along with downstream drying and separation steps, do not produce the same impurity profile or the same economic tradeoffs.',
+  argon:
+    'Air-separation conditions, fractional-distillation steps, and downstream removal of oxygen, nitrogen, and moisture do not produce the same impurity profile or the same economic tradeoffs.',
+  potassium:
+    'Potassium-salt feed quality, high-temperature reduction or electrochemical processing, distillation, and downstream purification do not produce the same impurity profile or the same economic tradeoffs.',
+  calcium:
+    'Fused-calcium-chloride electrolysis, related high-temperature reduction routes, and the much larger limestone-to-lime and calcium-compound industries do not produce the same impurity profile or the same economic tradeoffs.',
+};
+
+const productionAlternateRouteSentenceOverrides: Record<string, string> = {
+  silicon:
+    'Electronic-grade material is produced through chlorosilane chemistry and high-purity deposition routes such as the Siemens process.',
+  phosphorus:
+    'Much phosphorus also enters commerce through phosphoric acid and fertilizer manufacture rather than through elemental phosphorus alone.',
+  chlorine:
+    'Membrane-cell, diaphragm-cell, and older mercury-cell approaches illustrate different chlor-alkali process strategies.',
+  argon:
+    'Ultra-high-purity grades require additional purification beyond simple bulk air separation.',
+  potassium:
+    'Most commercial potassium enters use as salts rather than as elemental metal.',
+  calcium:
+    'Much larger calcium industries center on limestone processing rather than on the isolated metal itself.',
+};
+
+const reactivityOpeningOverrides: Record<string, string> = {
+  argon:
+    'The chemistry of argon is best introduced as chemical inertness under ordinary conditions, which captures both the thermodynamic tendencies of the element and the practical hazards associated with it.',
+};
+
+const occurrenceOpeningOverrides: Record<string, string> = {
+  scandium:
+    'In nature, scandium occurs in trace amounts in many minerals and is only rarely concentrated, most notably in thortveitite; practical recovery commonly focuses on byproduct streams and residues rather than rich primary scandium ores.',
+  vanadium:
+    'In nature, vanadium occurs combined in vanadium-bearing minerals and in some fossil-fuel deposits, especially titanomagnetite-type ores, certain uranium-associated minerals, coal, and petroleum; slags and petroleum residues are industrial recovery streams rather than natural occurrences.',
+  gallium:
+    'In nature, gallium occurs mainly in trace amounts in bauxite, zinc ores, coal, and certain gallium-bearing minerals; industrial residues are recovery streams rather than natural-occurrence categories.',
+  germanium:
+    'In nature, germanium occurs mainly in trace amounts in zinc ores, certain sulfide ores associated with copper and arsenic, and coal; industrial residues are commercial recovery sources rather than natural-occurrence categories.',
+};
+
+const appliedOpeningOverrides: Record<string, string> = {
+  scandium:
+    'A leading application area for scandium is aluminum-scandium alloys and solid-oxide fuel-cell materials, with additional uses in ceramics, electronics, lasers, lighting, and specialty materials.',
+};
+
+const occurrenceFocusNoteSuppressedIds = new Set(['scandium', 'vanadium', 'gallium', 'germanium']);
+const appliedFocusNoteSuppressedIds = new Set(['scandium']);
+
+function inlineElementName(seed: ElementSeed) {
+  return lowercaseInlineElementIds.has(seed.id) ? seed.name.toLowerCase() : seed.name;
 }
 
 function parseElectronShells(configuration: string) {
-  const shells = [0, 0, 0, 0, 0, 0];
+  const shells = [0, 0, 0, 0, 0, 0, 0];
   const coreMatch = configuration.match(/\[([A-Za-z]+)\]/);
   const core = coreMatch ? nobleGasShells[coreMatch[1]] : undefined;
 
@@ -227,7 +485,8 @@ function rotate<T>(values: T[], offset: number) {
 }
 
 function createOptions(correct: string, distractors: string[], offset: number) {
-  const pool = unique([correct, ...distractors]).slice(0, 4);
+  const displayCorrect = formatStandaloneText(correct);
+  const pool = unique([correct, ...distractors].map(formatStandaloneText)).slice(0, 4);
   const options: QuizOption[] = rotate(pool, offset).map((text, index) => ({
     id: `option-${index + 1}`,
     label: String.fromCharCode(65 + index),
@@ -236,7 +495,7 @@ function createOptions(correct: string, distractors: string[], offset: number) {
 
   return {
     options,
-    correctOptionId: options.find((option) => option.text === correct)?.id ?? options[0].id,
+    correctOptionId: options.find((option) => option.text === displayCorrect)?.id ?? options[0].id,
   };
 }
 
@@ -285,103 +544,139 @@ function trueFalse(id: string, prompt: string, answer: boolean, explanation: str
   };
 }
 
-function buildOverview(seed: ElementSeed, definition: ChapterDefinition, section: SectionSeed) {
+function buildOverview(seed: ElementSeed, definition: ChapterDefinition, section: SectionSeed): string {
+  const inlineName = inlineElementName(seed);
+
   switch (definition.key) {
     case 'classification':
       return `${seed.name} is interpreted first through periodic placement, and this chapter explains how ${section.facts[1]} establishes the element's identity.`;
     case 'electronic':
-      return `This chapter follows how ${section.facts[0]} controls bond type, oxidation behavior, and structural chemistry in ${seed.name}.`;
+      return `This chapter follows how ${section.facts[0]} controls bond type, oxidation behavior, and structural chemistry in ${inlineName}.`;
     case 'physical':
-      return `Observable properties of ${seed.name} become more meaningful when read through the structural picture summarized by ${section.facts[2]}.`;
+      return `Observable properties of ${inlineName} become more meaningful when read through the structural picture summarized by ${section.facts[2]}.`;
     case 'reactivity':
       return `${seed.name} shows its characteristic chemistry through ${section.facts[0]}, and this chapter connects that profile to major reactions and hazards.`;
     case 'occurrence':
-      return `Abundance, reservoirs, and environmental context reveal why ${seed.name} is encountered where it is and why free elemental samples may be rare or common.`;
+      return `Abundance, reservoirs, and environmental context reveal why ${inlineName} is encountered where it is and why free elemental samples may be rare or common.`;
     case 'isotopes':
-      return `The isotope story of ${seed.name} links introductory chemistry to nuclear structure, measurement, and practical scientific use.`;
+      return `The isotope story of ${inlineName} links introductory chemistry to nuclear structure, measurement, and practical scientific use.`;
     case 'production':
-      return `Industrial chemistry treats ${seed.name} not as an abstract symbol but as a feedstock obtained through specific extraction and purification routes.`;
+      return `Industrial chemistry treats ${inlineName} not as an abstract symbol but as a feedstock obtained through specific extraction and purification routes.`;
     case 'applied':
-      return `Major compounds, historical significance, technological use, and safe handling all show how the chemistry of ${seed.name} extends beyond the textbook page.`;
+      return `Major compounds, historical significance, technological use, and safe handling all show how the chemistry of ${inlineName} extends beyond the textbook page.`;
+    default:
+      return assertNever(definition.key);
   }
 }
 
-function buildParagraphs(seed: ElementSeed, definition: ChapterDefinition, section: SectionSeed) {
+function buildParagraphs(
+  seed: ElementSeed,
+  definition: ChapterDefinition,
+  section: SectionSeed
+): ParagraphBlock[] {
   const facts = section.facts;
   const highlights = section.highlights;
-  const paragraphs = (() => {
+  const inlineName = inlineElementName(seed);
+  const representativeFormSentence =
+    representativeFormOverrides[seed.id] ?? `A representative form of the element is ${facts[3]}.`;
+  const physicalFormContextSentence =
+    physicalFormContextOverrides[seed.id] ??
+    'Gases, cryogenic liquids, metallic solids, network allotropes, and fine powders behave very differently even before chemical reaction begins.';
+  const productionOpeningSentence =
+    productionOpeningOverrides[seed.id] ??
+    `Industrial production of ${inlineName} begins with ${facts[0]}.`;
+  const productionRouteSentence =
+    productionRouteOverrides[seed.id] ??
+    'This matters because different sources and technologies favor different process chains. Brines, air, ores, natural gas, electrolysis cells, and high-temperature furnaces do not produce the same impurity profile or the same economic tradeoffs.';
+  const productionAlternateRouteSentence =
+    productionAlternateRouteSentenceOverrides[seed.id] ??
+    `A supporting or alternative route is ${facts[2]}.`;
+  const reactivityOpeningSentence =
+    reactivityOpeningOverrides[seed.id] ??
+    `The reactivity profile of ${inlineName} is best summarized as ${facts[0]}.`;
+  const occurrenceOpeningSentence =
+    occurrenceOpeningOverrides[seed.id] ?? `In nature, ${inlineName} is found mainly as ${facts[0]}.`;
+  const appliedOpeningSentence =
+    appliedOpeningOverrides[seed.id] ?? `A leading application area for ${inlineName} is ${facts[0]}.`;
+  const occurrenceFocusNote = occurrenceFocusNoteSuppressedIds.has(seed.id) ? '' : section.focusNote;
+  const appliedFocusNote = appliedFocusNoteSuppressedIds.has(seed.id) ? '' : section.focusNote;
+  const paragraphs: string[] = (() => {
     switch (definition.key) {
       case 'classification':
         return [
-          `${seed.name} is classified as ${facts[0]}. In periodic terms it occupies ${facts[1]}, and the neutral atom is written as ${facts[2]}. Those descriptors are useful because they place ${seed.name} inside a broader map of size, valence, and typical compound formation. ${section.focusNote}`,
-          `Periodic placement matters because ${facts[3]}. ${highlights[0]} ${highlights[1]} When chemists compare ${seed.name} with nearby elements, they are comparing how similar electron counts generate recurring patterns and where size, shielding, or covalency force those patterns to bend.`,
-          `One of the most instructive features of ${seed.name} is that ${facts[4]}. That point keeps classification from becoming mechanical. It shows why group labels are helpful starting points but not substitutes for actual chemical reasoning about structure, charge distribution, and bond type.`,
-          `${highlights[2]} In practice, classification frames expectations about which ions, molecules, oxides, hydrides, or coordination environments will appear first in the chemistry of ${seed.name}. It also helps explain why the rest of the chapter sequence can be read as consequences of periodic location rather than as disconnected facts.`,
-          `${highlights[3]} The value of classification is therefore predictive. Once the reader knows where ${seed.name} belongs and why that placement is slightly qualified or strongly reinforced, later discussions of bonding, reactivity, occurrence, and application become much easier to organize.`,
+          `${seed.name} is classified as ${facts[0]}. In periodic terms it occupies ${facts[1]}, and the neutral atom is written as ${facts[2]}. Those descriptors are useful because they place ${inlineName} inside a broader map of size, valence, and typical compound formation. ${section.focusNote}`,
+          `Periodic placement matters because ${facts[3]}. ${highlights[0]} ${highlights[1]} When chemists compare ${inlineName} with nearby elements, they are comparing how similar electron counts generate recurring patterns and where size, shielding, or covalency force those patterns to bend.`,
+          `One of the most instructive features of ${inlineName} is that ${facts[4]}. That point keeps classification from becoming mechanical. It shows why group labels are helpful starting points but not substitutes for actual chemical reasoning about structure, charge distribution, and bond type.`,
+          `${highlights[2]} In practice, classification frames expectations about which ions, molecules, oxides, hydrides, or coordination environments will appear first in the chemistry of ${inlineName}. It also helps explain why the rest of the chapter sequence can be read as consequences of periodic location rather than as disconnected facts.`,
+          `${highlights[3]} The value of classification is therefore predictive. Once the reader knows where ${inlineName} belongs and why that placement is slightly qualified or strongly reinforced, later discussions of bonding, reactivity, occurrence, and application become much easier to organize.`,
         ];
       case 'electronic':
         return [
-          `The electronic starting point for ${seed.name} is ${facts[0]}. From that arrangement follow the most important questions in the chapter: how readily electrons are shared or transferred, which oxidation states are stable, and what kinds of structures emerge in molecules, ions, or extended solids. ${section.focusNote}`,
-          `${highlights[0]} ${facts[1]}. In ordinary chemistry that behavior is summarized by ${facts[2]}, but the real significance is structural. Electron count, shielding, and polarization determine whether compounds of ${seed.name} look strongly ionic, strongly covalent, or somewhere between those limits.`,
+          `The electronic starting point for ${inlineName} is ${facts[0]}. From that arrangement follow the most important questions in the chapter: how readily electrons are shared or transferred, which oxidation states are stable, and what kinds of structures emerge in molecules, ions, or extended solids. ${section.focusNote}`,
+          `${highlights[0]} ${facts[1]}. In ordinary chemistry that behavior is summarized by ${facts[2]}, but the real significance is structural. Electron count, shielding, and polarization determine whether compounds of ${inlineName} look strongly ionic, strongly covalent, or somewhere between those limits.`,
           `A representative bonding picture is ${facts[3]}. ${highlights[1]} This kind of example matters because it turns electron configuration into something visible: coordination geometry, bond multiplicity, lattice type, or molecular polarity. Those are the forms through which bonding behavior actually appears in data and experiment.`,
-          `${facts[4]}. ${highlights[2]} For ${seed.name}, electronic structure is not background information. It is the shortest path to understanding why some reactions are fast, why some compounds are unusually stable, and why certain materials or ions recur across textbooks and industrial practice.`,
-          `${highlights[3]} Once the valence picture is clear, the rest of the chemistry of ${seed.name} becomes easier to read. Bond type, oxidation pattern, and representative compounds all follow from the same underlying electronic logic rather than from a list of unrelated facts.`,
+          `Another consequence of that valence picture is that ${trimTrailingPunctuation(facts[4])}. ${highlights[2]} For ${inlineName}, electronic structure is not background information. It is the shortest path to understanding why some reactions are fast, why some compounds are unusually stable, and why certain materials or ions recur across textbooks and industrial practice.`,
+          `${highlights[3]} Once the valence picture is clear, the rest of the chemistry of ${inlineName} becomes easier to read. Bond type, oxidation pattern, and representative compounds all follow from the same underlying electronic logic rather than from a list of unrelated facts.`,
         ];
       case 'physical':
         return [
-          `At ordinary conditions, ${seed.name} is encountered as ${facts[0]}. That physical description is already chemically meaningful, because it reflects how strongly atoms or molecules attract one another and what sort of structure is present in the condensed phase. ${section.focusNote}`,
+          `At ordinary conditions, ${inlineName} is encountered as ${facts[0]}. That physical description is already chemically meaningful, because it reflects how strongly atoms or molecules attract one another and what sort of structure is present in the condensed phase. ${section.focusNote}`,
           `A standout feature is that ${facts[1]}. The structural reason is that ${facts[2]}. ${highlights[0]} ${highlights[1]} In a strong physical-chemistry reading, measured properties such as density, melting point, hardness, conductivity, and volatility are all interpreted through that structural explanation.`,
-          `A representative form of the element is ${facts[3]}. For ${seed.name}, this matters because physical form often determines how the material is actually used or studied. Gases, cryogenic liquids, metallic solids, network allotropes, and fine powders behave very differently even before chemical reaction begins.`,
-          `${facts[4]}. ${highlights[2]} Laboratory handling, storage, transport, and instrumentation all depend on these physical constraints. In many cases the first technical decision about ${seed.name} is not what reaction to run, but which physical form can be managed safely and effectively.`,
-          `${highlights[3]} Physical properties are therefore not decorative data. They explain why ${seed.name} becomes useful in specific technologies, why certain hazards dominate, and why the same element can appear so differently across engineering, laboratory, and natural settings.`,
+          `${representativeFormSentence} For ${inlineName}, this matters because physical form often determines how the material is actually used or studied. ${physicalFormContextSentence}`,
+          `Handling concerns are defined by the fact that ${trimTrailingPunctuation(facts[4])}. ${highlights[2]} Laboratory handling, storage, transport, and instrumentation all depend on these physical constraints. In many cases the first technical decision about ${inlineName} is not what reaction to run, but which physical form can be managed safely and effectively.`,
+          `${highlights[3]} Physical properties are therefore not decorative data. They explain why ${inlineName} becomes useful in specific technologies, why certain hazards dominate, and why the same element can appear so differently across engineering, laboratory, and natural settings.`,
         ];
       case 'reactivity':
         return [
-          `The reactivity profile of ${seed.name} is best summarized as ${facts[0]}. That single description already implies a balance between thermodynamic driving force, kinetic accessibility, and the types of bonds the element prefers to form or break. ${section.focusNote}`,
-          `A defining reaction pattern is that ${facts[1]}. ${highlights[0]} ${highlights[1]} For ${seed.name}, reactivity is not just a matter of whether the element reacts, but of which conditions activate it and which products are energetically favored once reaction begins.`,
+          `${reactivityOpeningSentence} That single description already implies a balance between thermodynamic driving force, kinetic accessibility, and the types of bonds the element prefers to form or break. ${section.focusNote}`,
+          `A defining reaction pattern is that ${facts[1]}. ${highlights[0]} ${highlights[1]} For ${inlineName}, reactivity is not just a matter of whether the element reacts, but of which conditions activate it and which products are energetically favored once reaction begins.`,
           `The main explanation is that ${facts[2]}. This is the chemical logic behind the chapter: strong product bonds, charge stabilization, bond dissociation energy, passivating surfaces, or catalytic activation dictate the observable behavior. That is why apparently similar elements can have sharply different reactivity profiles.`,
-          `Important families built on this behavior include ${facts[3]}. ${highlights[2]} These reaction classes matter because they carry the chemistry of ${seed.name} into synthesis, industrial processing, atmospheric chemistry, biological chemistry, or materials degradation.`,
-          `${facts[4]}. ${highlights[3]} The most useful way to finish a reactivity chapter is with that combination of mechanism and caution in mind: what drives the chemistry of ${seed.name}, what conditions unlock it, and what practical limits the chemist must respect.`,
+          `Important families built on this behavior include ${facts[3]}. ${highlights[2]} These reaction classes matter because they carry the chemistry of ${inlineName} into synthesis, industrial processing, atmospheric chemistry, biological chemistry, or materials degradation.`,
+          `Operational caution follows from the fact that ${trimTrailingPunctuation(facts[4])}. ${highlights[3]} The most useful way to finish a reactivity chapter is with that combination of mechanism and caution in mind: what drives the chemistry of ${inlineName}, what conditions unlock it, and what practical limits the chemist must respect.`,
         ];
       case 'occurrence':
         return [
-          `In nature, ${seed.name} is found mainly as ${facts[0]}. That pattern reflects both abundance and chemical preference: some elements remain free in ordinary environments, while others are stabilized almost entirely inside minerals, gases, waters, or biological matter. ${section.focusNote}`,
+          `${occurrenceOpeningSentence} That pattern reflects both abundance and chemical preference: some elements remain free in ordinary environments, while others are stabilized almost entirely inside minerals, gases, waters, or biological matter. ${occurrenceFocusNote}`,
           `In abundance terms, ${facts[1]}. ${highlights[0]} ${highlights[1]} A useful occurrence chapter therefore does more than name a reservoir. It explains whether the element is cosmically abundant, crustally concentrated, biologically cycled, or economically important only in unusual local environments.`,
-          `For ${seed.name}, the major reservoir statement is ${facts[2]}. This reservoir pattern tells the reader where the element is actually encountered in geology, atmospheric chemistry, environmental systems, or industrial feedstocks. It also explains why extraction can be straightforward for some elements and difficult for others.`,
-          `${facts[3]}. ${highlights[2]} Occurrence is never chemically neutral. The forms in which ${seed.name} is stored determine how it moves through ecosystems, how it enters industrial use, and what role it plays in large-scale Earth or planetary processes.`,
-          `${facts[4]}. ${highlights[3]} Once those ideas are clear, abundance stops being a memorized statistic and becomes part of the chemical identity of ${seed.name}: where it belongs, how it cycles, and why elemental samples may be common, rare, or practically absent.`,
+          `For ${inlineName}, the major reservoir statement is ${facts[2]}. This reservoir pattern tells the reader where the element is actually encountered in geology, atmospheric chemistry, environmental systems, or industrial feedstocks. It also explains why extraction can be straightforward for some elements and difficult for others.`,
+          `${facts[3]}. ${highlights[2]} Occurrence is never chemically neutral. The forms in which ${inlineName} is stored determine how it moves through ecosystems, how it enters industrial use, and what role it plays in large-scale Earth or planetary processes.`,
+          `${facts[4]}. ${highlights[3]} Once those ideas are clear, abundance stops being a memorized statistic and becomes part of the chemical identity of ${inlineName}: where it belongs, how it cycles, and why elemental samples may be common, rare, or practically absent.`,
         ];
       case 'isotopes':
         return [
-          `The isotope set most relevant to ${seed.name} is ${facts[0]}. These nuclides share chemical identity because they contain the same number of protons, yet they differ in mass, nuclear stability, or abundance in ways that can matter strongly in chemistry, physics, and measurement. ${section.focusNote}`,
+          `The isotope set most relevant to ${inlineName} is ${facts[0]}. These nuclides share chemical identity because they contain the same number of protons, yet they differ in mass, nuclear stability, or abundance in ways that can matter strongly in chemistry, physics, and measurement. ${section.focusNote}`,
           `A central nuclear distinction is that ${facts[1]}. ${highlights[0]} ${highlights[1]} This difference may affect stability, radioactive decay, or isotopic abundance, and it determines whether the chapter leans more heavily toward analytical tracing, nuclear applications, or subtle physical effects.`,
-          `For ${seed.name}, one important isotope-related consequence is that ${facts[2]}. This is where isotope chemistry becomes more than a nuclear footnote. Mass differences can shift vibrational frequencies, diffusion, reaction rates, or environmental partitioning in ways that are scientifically useful.`,
+          `For ${inlineName}, one important isotope-related consequence is that ${facts[2]}. This is where isotope chemistry becomes more than a nuclear footnote. Mass differences can shift vibrational frequencies, diffusion, reaction rates, or environmental partitioning in ways that are scientifically useful.`,
           `A major practical use follows because ${facts[3]}. ${highlights[2]} The most interesting isotope chapters are usually the ones in which nuclear identity changes how the element is measured, dated, traced, or applied in technology.`,
-          `${facts[4]}. ${highlights[3]} The resulting picture is precise and limited at the same time: isotopes do not rewrite the whole chemistry of ${seed.name}, but they can change measurement, safety, and interpretation enough to justify a chapter of their own.`,
+          `${facts[4]}. ${highlights[3]} The resulting picture is precise and limited at the same time: isotopes do not rewrite the whole chemistry of ${inlineName}, but they can change measurement, safety, and interpretation enough to justify a chapter of their own.`,
         ];
       case 'production':
         return [
-          `Industrial production of ${seed.name} begins with ${facts[0]}. That route reflects not just availability, but the thermodynamics of separation, the chemistry of the feedstock, and the purity demands of downstream users. ${section.focusNote}`,
+          `${productionOpeningSentence} That route reflects not just availability, but the thermodynamics of separation, the chemistry of the feedstock, and the purity demands of downstream users. ${section.focusNote}`,
           `The dominant process logic is that ${facts[1]}. ${highlights[0]} ${highlights[1]} Once this is understood, the production chapter becomes easier to read as chemical engineering rather than as an arbitrary list of industrial steps.`,
-          `A supporting or alternative route is ${facts[2]}. This matters because different sources and technologies favor different process chains. Brines, air, ores, natural gas, electrolysis cells, and high-temperature furnaces do not produce the same impurity profile or the same economic tradeoffs.`,
+          `${productionAlternateRouteSentence} ${productionRouteSentence}`,
           `An important refining step is ${facts[3]}. ${highlights[2]} For many elements the real difficulty is not making a crude product, but delivering material with the stability, cleanliness, particle size, or isotopic composition required for modern applications.`,
-          `${facts[4]}. ${highlights[3]} A production chapter is strongest when it leaves the reader with a clear sense of where ${seed.name} comes from, why that route dominates, and what technical constraints shape the quality and cost of the final product.`,
+          `${facts[4]}. ${highlights[3]} A production chapter is strongest when it leaves the reader with a clear sense of where ${inlineName} comes from, why that route dominates, and what technical constraints shape the quality and cost of the final product.`,
         ];
       case 'applied':
         return [
-          `A leading application area for ${seed.name} is ${facts[0]}. This matters because application is where atomic-scale behavior becomes visible in medicine, manufacturing, energy systems, environmental chemistry, or instrumentation. ${section.focusNote}`,
+          `${appliedOpeningSentence} This matters because application is where atomic-scale behavior becomes visible in medicine, manufacturing, energy systems, environmental chemistry, or instrumentation. ${appliedFocusNote}`,
           `Much of that importance is carried by ${facts[1]}. ${highlights[0]} ${highlights[1]} The chapter is most useful when it ties these compounds or materials back to bond strength, oxidation behavior, structure, or physical form rather than presenting them as isolated examples.`,
-          `The broader scientific or environmental significance is that ${facts[2]}. For ${seed.name}, applications are not limited to commerce. They also reveal why the element matters in biological systems, planetary processes, analytical science, or the history of chemical theory.`,
+          `The broader scientific or environmental significance is that ${facts[2]}. For ${inlineName}, applications are not limited to commerce. They also reveal why the element matters in biological systems, planetary processes, analytical science, or the history of chemical theory.`,
           `Historically, ${facts[3]}. ${highlights[2]} That historical angle is worth keeping because it shows how the chemistry of ${seed.name} changed what scientists could explain, build, or measure.`,
-          `${facts[4]}. ${highlights[3]} A strong applications chapter therefore ends with both utility and limits in view: what chemists gain from the distinctive behavior of ${seed.name}, and what controls are required to use that behavior responsibly.`,
+          `Responsible use begins with the fact that ${trimTrailingPunctuation(facts[4])}. ${highlights[3]} A strong applications chapter therefore ends with both utility and limits in view: what chemists gain from the distinctive behavior of ${inlineName}, and what controls are required to use that behavior responsibly.`,
         ];
+      default:
+        return assertNever(definition.key);
     }
   })();
 
-  return paragraphs.map((text, index) => paragraph(`${definition.id}-p${index + 1}`, text));
+  return paragraphs.map((text, index) =>
+    paragraph(`${definition.id}-p${index + 1}`, normalizeParagraphText(text))
+  );
 }
 
-function buildFigureTitle(seed: ElementSeed, definition: ChapterDefinition) {
+function buildFigureTitle(seed: ElementSeed, definition: ChapterDefinition): string {
   switch (definition.key) {
     case 'classification':
       return `${seed.name} in periodic context`;
@@ -399,10 +694,16 @@ function buildFigureTitle(seed: ElementSeed, definition: ChapterDefinition) {
       return `${seed.name} process pathway`;
     case 'applied':
       return `${seed.name} applications and safety matrix`;
+    default:
+      return assertNever(definition.key);
   }
 }
 
-function buildFigureCaption(seed: ElementSeed, definition: ChapterDefinition, section: SectionSeed) {
+function buildFigureCaption(
+  seed: ElementSeed,
+  definition: ChapterDefinition,
+  section: SectionSeed
+): string {
   switch (definition.key) {
     case 'classification':
       return `Periodic-tile figure showing atomic number, group, period, block, room state, and oxidation context for ${seed.name}, centered on ${compactFigureText(section.facts[1], 7)}.`;
@@ -420,6 +721,8 @@ function buildFigureCaption(seed: ElementSeed, definition: ChapterDefinition, se
       return `Process-flow diagram summarizing the principal industrial route, supporting steps, and supply constraints for ${seed.name}, beginning with ${compactFigureText(section.facts[0], 8)}.`;
     case 'applied':
       return `Applications-and-safety matrix mapping the major uses, chemical systems, and handling limits of ${seed.name}, including ${compactFigureText(section.facts[4], 8)}.`;
+    default:
+      return assertNever(definition.key);
   }
 }
 
@@ -475,12 +778,12 @@ function buildPropertyComparisonData(seed: ElementSeed, section: SectionSeed): P
       },
       {
         label: 'Structure',
-        value: headlineFromText(section.facts[2], 4),
+        value: headlineFromText(section.facts[2], 7),
         detail: section.facts[3],
       },
       {
         label: 'Handling',
-        value: headlineFromText(section.facts[4], 4),
+        value: headlineFromText(section.facts[4], 8),
         detail: section.facts[4],
       },
     ],
@@ -517,7 +820,7 @@ function buildSpectrumBarData(seed: ElementSeed, section: SectionSeed): Spectrum
     title: `${seed.name} reservoirs`,
     subtitle: compactFigureText(section.focusNote, 16),
     note: section.facts[4],
-    segments: section.facts.slice(0, 4).map((fact, index) => {
+    segments: section.facts.slice(0, 4).map((fact: string, index: number) => {
       const label = classifyOccurrenceLabel(fact, index);
       return {
         label,
@@ -666,10 +969,12 @@ function buildFigureData(seed: ElementSeed, definition: ChapterDefinition, secti
       return buildReactionFlowData(section);
     case 'applied':
       return buildApplicationMatrixData(seed, section);
+    default:
+      return assertNever(definition.key);
   }
 }
 
-function buildFactPrompts(seed: ElementSeed, key: SectionKey) {
+function buildFactPrompts(seed: ElementSeed, key: SectionKey): string[] {
   switch (key) {
     case 'classification':
       return [
@@ -735,10 +1040,12 @@ function buildFactPrompts(seed: ElementSeed, key: SectionKey) {
         `Which historical statement about ${seed.name} is most accurate?`,
         `Which safety context is most relevant when working with ${seed.name} or its important compounds?`,
       ];
+    default:
+      return assertNever(key);
   }
 }
 
-function buildStatementFrames(seed: ElementSeed, key: SectionKey) {
+function buildStatementFrames(seed: ElementSeed, key: SectionKey): Array<(fact: string) => string> {
   switch (key) {
     case 'classification':
       return [
@@ -804,10 +1111,12 @@ function buildStatementFrames(seed: ElementSeed, key: SectionKey) {
         (fact: string) => `A historical statement is that ${fact}.`,
         (fact: string) => `A major safety consideration is that ${fact}.`,
       ];
+    default:
+      return assertNever(key);
   }
 }
 
-function buildGlossaryItems(seed: ElementSeed, key: SectionKey, section: SectionSeed) {
+function buildGlossaryItems(seed: ElementSeed, key: SectionKey, section: SectionSeed): string[] {
   switch (key) {
     case 'classification':
       return [
@@ -857,26 +1166,28 @@ function buildGlossaryItems(seed: ElementSeed, key: SectionKey, section: Section
         `Major compounds or materials: ${section.facts[1]}.`,
         `Safety context: ${section.facts[4]}.`,
       ];
+    default:
+      return assertNever(key);
   }
 }
 
-function chooseDistractors(seed: ElementSeed, key: SectionKey, index: number) {
+function chooseDistractors(seed: ElementSeed, key: SectionKey, index: number): string[] {
   return chemistryElementSeeds
     .filter((candidate) => candidate.id !== seed.id)
     .map((candidate) => candidate.sections[key].facts[index])
-    .filter(Boolean)
+    .filter((fact): fact is string => Boolean(fact))
     .slice(0, 3);
 }
 
 function buildFlashcards(seed: ElementSeed, definition: ChapterDefinition, section: SectionSeed): Flashcard[] {
   const prompts = buildFactPrompts(seed, definition.key);
-  const factCards = section.facts.map((fact, index) => ({
+  const factCards = section.facts.map((fact: string, index: number) => ({
     id: `${definition.id}-fact-${index + 1}`,
-    front: prompts[index],
-    back: fact,
+    front: prompts[index] ?? `Key fact ${index + 1} for ${seed.name}`,
+    back: formatStandaloneText(fact),
   }));
 
-  const highlightCards = section.highlights.slice(0, 3).map((highlight, index) => ({
+  const highlightCards = section.highlights.slice(0, 3).map((highlight: string, index: number) => ({
     id: `${definition.id}-highlight-${index + 1}`,
     front: `${definition.title}: key takeaway ${index + 1} for ${seed.name}`,
     back: highlight,
@@ -889,24 +1200,25 @@ function buildQuiz(seed: ElementSeed, definition: ChapterDefinition, section: Se
   const prompts = buildFactPrompts(seed, definition.key);
   const statementFrames = buildStatementFrames(seed, definition.key);
 
-  const multipleChoiceQuestions = section.facts.map((fact, index) =>
+  const multipleChoiceQuestions = section.facts.map((fact: string, index: number) =>
     multipleChoice(
       `${definition.id}-mc-${index + 1}`,
-      prompts[index],
+      prompts[index] ?? `Key fact ${index + 1} for ${seed.name}`,
       fact,
       chooseDistractors(seed, definition.key, index),
-      `The best answer is "${fact}" because ${section.highlights[index % section.highlights.length].toLowerCase()}`,
+      `The best answer is "${formatStandaloneText(fact)}" because ${(section.highlights[index % section.highlights.length] ?? section.focusNote).toLowerCase()}`,
       index
     )
   );
 
-  const trueFalseQuestions = section.facts.map((fact, index) => {
+  const trueFalseQuestions = section.facts.map((fact: string, index: number) => {
     const correct = index % 2 === 0;
     const distractor = chooseDistractors(seed, definition.key, index)[0] ?? fact;
-    const statement = statementFrames[index](correct ? fact : distractor);
+    const statementFrame = statementFrames[index] ?? ((value: string) => value);
+    const statement = statementFrame(correct ? fact : distractor);
     const explanation = correct
-      ? `True. ${statementFrames[index](fact)} ${section.highlights[index % section.highlights.length]}`
-      : `False. For ${seed.name}, ${statementFrames[index](fact)} ${section.highlights[index % section.highlights.length]}`;
+      ? `True. ${statementFrame(fact)} ${section.highlights[index % section.highlights.length] ?? section.focusNote}`
+      : `False. For ${seed.name}, ${statementFrame(fact)} ${section.highlights[index % section.highlights.length] ?? section.focusNote}`;
 
     return trueFalse(`${definition.id}-tf-${index + 1}`, statement, correct, explanation);
   });
@@ -1027,7 +1339,7 @@ export const chemistryTopic: Topic = {
   subjectId,
   title: 'Elements',
   description:
-    'A deeper chemistry reading sequence on the first thirty elements, structured as compact academic mini-textbooks.',
+    `A deeper chemistry reading sequence on the first ${chemistryElementSeeds.length} elements, structured as compact academic mini-textbooks.`,
   sectionLabel: 'Topic',
   learningUnits: chemistryUnits,
 };

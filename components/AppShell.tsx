@@ -3,10 +3,16 @@ import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import Svg, { Defs, LinearGradient as SvgLinearGradient, Rect, Stop } from 'react-native-svg';
+import Svg, {
+  Defs,
+  RadialGradient as SvgRadialGradient,
+  Rect,
+  Stop,
+} from 'react-native-svg';
 
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useBreakpoints } from '@/hooks/use-breakpoints';
+import { BackButton } from '@/components/BackButton';
 import { Breadcrumbs, type BreadcrumbItem } from '@/components/Breadcrumbs';
 import { ResponsiveLayout } from '@/components/ResponsiveLayout';
 import { getElementBackdropPalette, type ElementAccentPalette } from '@/theme/element-accents';
@@ -20,48 +26,49 @@ interface AppShellProps {
 
 export function AppShell({ children, hero, breadcrumbs, accent }: AppShellProps) {
   const theme = useAppTheme();
-  const { gutter, isDesktop } = useBreakpoints();
+  const { gutter, isDesktop, isTablet } = useBreakpoints();
   const backdrop = getElementBackdropPalette(theme, accent);
+  const showGradient = isTablet;
+  const shellDivider = isTablet ? backdrop.divider : 'transparent';
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: backdrop.canvas }}>
       <View style={{ flex: 1, backgroundColor: backdrop.canvas }}>
-        <Svg
-          pointerEvents="none"
-          style={StyleSheet.absoluteFillObject}
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none">
-          <Defs>
-            <SvgLinearGradient id="shell-base-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <Stop offset="0%" stopColor={backdrop.gradientStart} />
-              <Stop offset="48%" stopColor={backdrop.gradientMid} />
-              <Stop offset="100%" stopColor={backdrop.gradientEnd} />
-            </SvgLinearGradient>
-            <SvgLinearGradient id="shell-wash-gradient" x1="100%" y1="0%" x2="12%" y2="82%">
-              <Stop offset="0%" stopColor={backdrop.washStart} />
-              <Stop offset="100%" stopColor={backdrop.washEnd} />
-            </SvgLinearGradient>
-            <SvgLinearGradient id="shell-depth-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <Stop offset="0%" stopColor={theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.24)'} />
-              <Stop offset="30%" stopColor="rgba(255,255,255,0)" />
-              <Stop offset="100%" stopColor={theme.mode === 'dark' ? 'rgba(4,11,19,0.12)' : 'rgba(16,34,56,0.04)'} />
-            </SvgLinearGradient>
-          </Defs>
-          <Rect x="0" y="0" width="100" height="100" fill="url(#shell-base-gradient)" />
-          <Rect x="0" y="0" width="100" height="100" fill="url(#shell-wash-gradient)" />
-          <Rect x="0" y="0" width="100" height="100" fill="url(#shell-depth-gradient)" />
-        </Svg>
-        <View
-          style={{
-            position: 'absolute',
-            top: 110,
-            left: gutter,
-            right: gutter,
-            height: 1,
-            backgroundColor: backdrop.divider,
-            opacity: 0.45,
-          }}
-        />
+        {showGradient ? (
+          <Svg
+            style={[StyleSheet.absoluteFillObject, { pointerEvents: 'none' }]}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none">
+            <Defs>
+              <SvgRadialGradient
+                id="shell-tonal-gradient"
+                cx="26%"
+                cy="12%"
+                rx="176%"
+                ry="136%"
+                fx="26%"
+                fy="12%">
+                <Stop offset="0%" stopColor={backdrop.gradientStart} />
+                <Stop offset="28%" stopColor={backdrop.gradientMid} />
+                <Stop offset="100%" stopColor={backdrop.gradientEnd} />
+              </SvgRadialGradient>
+              <SvgRadialGradient
+                id="shell-tonal-depth"
+                cx="88%"
+                cy="88%"
+                rx="132%"
+                ry="110%"
+                fx="88%"
+                fy="88%">
+                <Stop offset="0%" stopColor={backdrop.overlayEnd} stopOpacity={0.56} />
+                <Stop offset="44%" stopColor={backdrop.overlayEnd} stopOpacity={0.22} />
+                <Stop offset="100%" stopColor={backdrop.overlayStart} stopOpacity={0} />
+              </SvgRadialGradient>
+            </Defs>
+            <Rect x="0" y="0" width="100" height="100" fill="url(#shell-tonal-gradient)" />
+            <Rect x="0" y="0" width="100" height="100" fill="url(#shell-tonal-depth)" />
+          </Svg>
+        ) : null}
 
         <View
           style={{
@@ -69,70 +76,75 @@ export function AppShell({ children, hero, breadcrumbs, accent }: AppShellProps)
             paddingTop: theme.spacing.sm,
             paddingBottom: theme.spacing.md,
             borderBottomWidth: 1,
-            borderBottomColor: backdrop.divider,
+            borderBottomColor: shellDivider,
             backgroundColor: 'transparent',
           }}>
           <View
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
+              flexDirection: isTablet ? 'row' : 'column',
+              alignItems: isTablet ? 'center' : 'flex-start',
               justifyContent: 'space-between',
               gap: theme.spacing.md,
             }}>
-            <Link href="/" style={{ textDecorationLine: 'none' }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: theme.spacing.md,
-                }}>
+            <View style={{ flex: 1, gap: isTablet ? 0 : theme.spacing.sm }}>
+              <BackButton accent={accent} />
+              <Link href="/" style={{ textDecorationLine: 'none' }}>
                 <View
                   style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 18,
+                    flexDirection: 'row',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 1,
-                    borderColor: accent?.line ?? theme.colors.borderStrong,
-                    backgroundColor: accent?.panel ?? theme.colors.surfaceElevated,
-                    shadowColor: accent?.accent ?? theme.shadow.light.shadowColor,
-                    shadowOpacity: 0.12,
-                    shadowRadius: 12,
-                    shadowOffset: { width: 0, height: 8 },
-                    elevation: 4,
+                    gap: theme.spacing.md,
                   }}>
-                  <Ionicons name="flask-outline" size={20} color={accent?.accent ?? theme.colors.accent} />
-                </View>
-                <View style={{ gap: 2 }}>
-                  <Text
+                  <View
                     style={{
-                      color: theme.colors.text,
-                      fontFamily: theme.fonts.display,
-                      fontSize: 28,
-                      fontWeight: '700',
+                      width: 48,
+                      height: 48,
+                      borderRadius: 18,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderWidth: 1,
+                      borderColor: accent?.line ?? theme.colors.borderStrong,
+                      backgroundColor: accent?.panel ?? theme.colors.surfaceElevated,
+                      shadowColor: accent?.accent ?? theme.shadow.light.shadowColor,
+                      shadowOpacity: 0.12,
+                      shadowRadius: 12,
+                      shadowOffset: { width: 0, height: 8 },
+                      elevation: 4,
                     }}>
-                    LearnHub
-                  </Text>
-                  <Text
-                    style={{
-                      color: theme.colors.textMuted,
-                      fontFamily: theme.fonts.mono,
-                      fontSize: 12,
-                      letterSpacing: 1,
-                      textTransform: 'uppercase',
-                    }}>
-                    Editorial study atlas
-                  </Text>
+                    <Ionicons name="flask-outline" size={20} color={accent?.accent ?? theme.colors.accent} />
+                  </View>
+                  <View style={{ gap: 2 }}>
+                    <Text
+                      style={{
+                        color: theme.colors.text,
+                        fontFamily: theme.fonts.display,
+                        fontSize: isTablet ? 28 : 24,
+                        fontWeight: '700',
+                      }}>
+                      LearnHub
+                    </Text>
+                    <Text
+                      style={{
+                        color: theme.colors.textMuted,
+                        fontFamily: theme.fonts.mono,
+                        fontSize: 12,
+                        letterSpacing: 1,
+                        textTransform: 'uppercase',
+                      }}>
+                      Editorial study atlas
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            </Link>
+              </Link>
+            </View>
 
             <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
+                flexWrap: 'wrap',
                 gap: theme.spacing.md,
+                alignSelf: isTablet ? 'center' : 'flex-start',
                 borderRadius: theme.radius.pill,
                 backgroundColor: theme.colors.surfaceOverlay,
                 borderWidth: 1,
@@ -167,6 +179,7 @@ export function AppShell({ children, hero, breadcrumbs, accent }: AppShellProps)
         </View>
 
         <ScrollView
+          style={{ flex: 1, backgroundColor: 'transparent' }}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingVertical: theme.spacing.xxl,
@@ -175,7 +188,13 @@ export function AppShell({ children, hero, breadcrumbs, accent }: AppShellProps)
           <ResponsiveLayout style={{ gap: theme.spacing.xl }}>
             {isDesktop && breadcrumbs?.length ? <Breadcrumbs items={breadcrumbs} /> : null}
             {hero}
-            {children}
+            <View
+              style={{
+                gap: theme.spacing.xl,
+                backgroundColor: 'transparent',
+              }}>
+              {children}
+            </View>
           </ResponsiveLayout>
         </ScrollView>
       </View>

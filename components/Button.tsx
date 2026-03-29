@@ -66,15 +66,19 @@ export function Button({ label, variant = 'primary', icon, style, accent, ...pro
           alignItems: 'center',
           justifyContent: 'center',
           gap: theme.spacing.xs,
+          minWidth: 0,
         }}>
         {icon ? <Ionicons name={icon} size={16} color={textColor} /> : null}
         <Text
           style={{
+            flexShrink: 1,
             color: textColor,
             fontFamily: theme.fonts.mono,
             fontSize: 13,
             fontWeight: '700',
             letterSpacing: 0.8,
+            lineHeight: 18,
+            textAlign: 'center',
             textTransform: 'uppercase',
           }}>
           {label}

@@ -18,11 +18,19 @@ export function ProgressBadge({ percentage, detail, accent }: ProgressBadgeProps
   return (
     <View
       style={{
-        alignSelf: 'flex-start',
+        alignSelf: 'stretch',
         gap: theme.spacing.xs,
-        minWidth: 180,
+        minWidth: 0,
+        width: '100%',
       }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: theme.spacing.md }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: theme.spacing.md,
+          minWidth: 0,
+        }}>
         <View
           style={{
             alignSelf: 'flex-start',
@@ -32,6 +40,7 @@ export function ProgressBadge({ percentage, detail, accent }: ProgressBadgeProps
             borderColor: accent?.line ?? theme.colors.border,
             paddingHorizontal: theme.spacing.sm,
             paddingVertical: 6,
+            maxWidth: '72%',
           }}>
           <Text
             style={{
@@ -40,6 +49,7 @@ export function ProgressBadge({ percentage, detail, accent }: ProgressBadgeProps
               fontSize: 12,
               fontWeight: '700',
               letterSpacing: 0.7,
+              flexShrink: 1,
               textTransform: 'uppercase',
             }}>
             {complete ? 'Completed' : 'Progress'}
@@ -80,6 +90,7 @@ export function ProgressBadge({ percentage, detail, accent }: ProgressBadgeProps
             fontFamily: theme.fonts.body,
             fontSize: 12,
             lineHeight: 18,
+            flexShrink: 1,
           }}>
           {detail}
         </Text>

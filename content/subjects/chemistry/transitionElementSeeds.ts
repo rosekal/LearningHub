@@ -89,7 +89,7 @@ export const transitionElementSeeds: ElementSeed[] = [
       occurrence: occurrenceSection(
         'Scandium',
         facts(
-          'dispersed in thortveitite, laterites, bauxite residues, and some uranium or titanium ores',
+          'trace amounts in many minerals and only rarely concentrated, most notably in thortveitite; practical recovery commonly focuses on byproduct streams and residues rather than rich primary scandium ores',
           'it is much less abundant than common structural metals and rarely forms concentrated ores',
           'lateritic deposits and industrial byproduct streams are the main practical reservoirs',
           'geochemical dispersion makes scandium supply a separation problem rather than a simple mining problem',
@@ -119,7 +119,7 @@ export const transitionElementSeeds: ElementSeed[] = [
       applied: appliedSection(
         'Scandium',
         facts(
-          'aluminum-scandium alloys, high-intensity lighting, solid-oxide fuel-cell materials, and specialty ceramics',
+          'aluminum-scandium alloys and solid-oxide fuel-cell materials, with additional uses in ceramics, electronics, lasers, lighting, and specialty materials',
           'Sc2O3, scandium halides, Sc-Al alloys, and scandia-stabilized zirconia',
           'scandium is scientifically valuable because small additions can strongly modify alloy microstructure and oxide conductivity',
           'modern interest in scandium rose with aerospace alloys and advanced ceramic applications rather than with bulk commodity chemistry',
@@ -311,7 +311,7 @@ export const transitionElementSeeds: ElementSeed[] = [
       occurrence: occurrenceSection(
         'Vanadium',
         facts(
-          'vanadium-bearing titanomagnetite ores, slags, petroleum residues, and some uranium-related minerals',
+          'vanadium-bearing minerals and some fossil-fuel deposits, especially titanomagnetite-type ores, certain uranium-associated minerals, coal, and petroleum; slags and petroleum residues are industrial recovery streams rather than natural occurrences',
           'it is less abundant than iron but common enough to be economically recovered from several industrial streams',
           'ore concentrates, metallurgical slags, and heavy petroleum residues are major practical reservoirs',
           'vanadium often follows iron or heavy-organic geochemistry rather than forming large pure deposits',

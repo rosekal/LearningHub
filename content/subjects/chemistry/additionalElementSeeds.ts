@@ -72,7 +72,7 @@ export const additionalChemistryElementSeeds: ElementSeed[] = [
           'a soft, silvery, low-density metallic solid',
           'it can be cut easily and melts at relatively low temperature for a metal',
           'metallic bonding in a body-centered-cubic alkali-metal lattice gives softness and good conductivity',
-          'freshly cut sodium that rapidly tarnishes and molten sodium used as a heat-transfer fluid',
+          'freshly cut sodium metal, stored sodium under oil or inert atmosphere, and molten sodium in specialized heat-transfer systems',
           'samples must be protected from moist air and are commonly stored under oil or inert atmosphere'
         )
       ),
@@ -183,7 +183,7 @@ export const additionalChemistryElementSeeds: ElementSeed[] = [
           'a silvery, low-density metallic solid',
           'it is notably light for a structural metal and emits an intense white light when burning',
           'close-packed metallic structure gives low density with useful specific strength in alloys',
-          'magnesium ribbon, cast magnesium alloys, and finely divided magnesium powder',
+          'magnesium ribbon, bulk magnesium metal, cast magnesium alloys, and finely divided magnesium powder',
           'surface oxide slows everyday corrosion, but fine metal can ignite and requires dry-fire precautions'
         )
       ),
@@ -294,7 +294,7 @@ export const additionalChemistryElementSeeds: ElementSeed[] = [
           'a light, silvery, conductive metallic solid',
           'it combines low density with good thermal and electrical conductivity and high formability',
           'face-centered-cubic metallic bonding supports ductility while a thin oxide film protects the surface',
-          'foil, structural alloys, beverage cans, and highly conductive electrical components',
+          'foil, sheet, structural alloys, electrical conductor stock, powders, and molten aluminum',
           'surface passivation gives excellent corrosion resistance, though powders and molten metal require more careful handling'
         )
       ),
@@ -405,7 +405,7 @@ export const additionalChemistryElementSeeds: ElementSeed[] = [
           'a hard, brittle, blue-gray solid with semiconducting properties',
           'its electrical conductivity is highly sensitive to temperature, purity, and controlled doping',
           'a diamond-like covalent network produces hardness, brittleness, and semiconducting electronic bands',
-          'quartz-derived materials, polycrystalline silicon, and single-crystal wafers',
+          'bulk silicon, polycrystalline silicon, single-crystal silicon, silicon wafers, and finely divided silicon powders',
           'high-purity handling focuses on contamination control rather than simple corrosion or low-temperature volatility'
         )
       ),
@@ -516,7 +516,7 @@ export const additionalChemistryElementSeeds: ElementSeed[] = [
           'a solid element occurring in several allotropes with sharply different physical properties',
           'white phosphorus is waxy and highly reactive, red phosphorus is more stable, and black phosphorus is layered and more conductive',
           'differences in bonding between molecular and extended structures produce major changes in stability, color, and conductivity',
-          'white phosphorus stored under water and red phosphorus used in safer practical formulations',
+          'white phosphorus stored under water, red phosphorus, and black phosphorus',
           'physical form controls hazard level strongly, so allotrope identification matters in storage and handling'
         )
       ),
@@ -627,7 +627,7 @@ export const additionalChemistryElementSeeds: ElementSeed[] = [
           'a yellow, brittle molecular solid under ordinary conditions',
           'it shows allotropy and unusual melt behavior because sulfur rings can open and polymerize',
           'molecular S8 packing explains the brittle solid, while longer chains appear in the melt',
-          'orthorhombic sulfur crystals, molten sulfur, and vulcanized sulfur-containing materials',
+          'orthorhombic sulfur crystals, molten sulfur, and finely divided sulfur powders',
           'physical handling is usually straightforward, but dust control and heated sulfur systems require care'
         )
       ),
@@ -738,7 +738,7 @@ export const additionalChemistryElementSeeds: ElementSeed[] = [
           'a greenish-yellow diatomic gas at room temperature',
           'it is denser than air and can be liquefied under moderate pressure',
           'weak intermolecular forces give a molecular gas, while high electronegativity still makes the element chemically aggressive',
-          'compressed chlorine cylinders and liquefied chlorine streams in industrial handling',
+          'compressed chlorine gas and liquefied chlorine streams in industrial handling',
           'gas density and corrosive reactivity make containment, leak control, and ventilation essential'
         )
       ),
@@ -849,7 +849,7 @@ export const additionalChemistryElementSeeds: ElementSeed[] = [
           'a colorless, odorless monatomic gas',
           'it is denser than nitrogen and oxygen and becomes a cryogenic liquid at low temperature',
           'only weak dispersion forces act between monatomic argon atoms',
-          'compressed shielding gas cylinders, discharge tubes, and cryogenic liquid argon systems',
+          'compressed argon gas and cryogenic liquid argon; common uses include shielding-gas cylinders, discharge tubes, and liquid-argon systems',
           'the chief practical risks are pressure and oxygen displacement rather than chemical corrosion'
         )
       ),
@@ -960,7 +960,7 @@ export const additionalChemistryElementSeeds: ElementSeed[] = [
           'a very soft, silvery, low-density metallic solid',
           'it is softer and has a lower melting point than sodium',
           'weak metallic bonding in the expanded alkali-metal lattice gives extreme softness and easy deformation',
-          'freshly cut potassium metal and low-melting alkali-metal samples used only under protective storage',
+          'freshly cut potassium metal, protected stored samples, and molten potassium under controlled conditions',
           'the metal must be kept away from air and moisture because tarnishing and ignition can occur rapidly'
         )
       ),
@@ -1071,7 +1071,7 @@ export const additionalChemistryElementSeeds: ElementSeed[] = [
           'a silvery metallic solid',
           'it is softer and lighter than many engineering metals but less soft than the alkali metals',
           'metallic bonding gives a workable solid, while its compounds often form hard ionic minerals',
-          'calcium metal, lime-derived materials, and calcium-rich minerals such as limestone and gypsum',
+          'calcium metal, calcium granules or turnings, molten calcium, and protected laboratory or industrial metal stock',
           'bulk calcium metal tarnishes in air and should be protected from moisture and strong oxidizers'
         )
       ),

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 
-import { chapterKey, isChapterBookmarked } from '@/features/learning/selectors';
+import { isChapterBookmarked } from '@/features/learning/selectors';
 import { useElementAccent } from '@/hooks/use-element-accent';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useStudy } from '@/hooks/use-study';
@@ -44,7 +44,7 @@ export function BookmarkButton({ unitId, chapterId, compact = false }: BookmarkB
         color={active ? accent.accent : theme.colors.textMuted}
       />
       {!compact ? (
-        <View>
+        <View style={{ minWidth: 0, flexShrink: 1 }}>
           <Text
             style={{
               color: active ? accent.accentStrong : theme.colors.textMuted,
@@ -52,6 +52,7 @@ export function BookmarkButton({ unitId, chapterId, compact = false }: BookmarkB
               fontSize: 12,
               fontWeight: '700',
               letterSpacing: 0.6,
+              flexShrink: 1,
               textTransform: 'uppercase',
             }}>
             {active ? 'Bookmarked' : 'Bookmark'}
@@ -61,8 +62,10 @@ export function BookmarkButton({ unitId, chapterId, compact = false }: BookmarkB
               color: active ? accent.accent : theme.colors.textSoft,
               fontFamily: theme.fonts.mono,
               fontSize: 11,
+              flexShrink: 1,
+              lineHeight: 16,
             }}>
-              {chapterKey(unitId, chapterId)}
+              {active ? 'Saved locally' : 'Save this chapter'}
           </Text>
         </View>
       ) : null}

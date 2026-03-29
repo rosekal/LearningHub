@@ -2,9 +2,11 @@
 
 LearnHub is a local-first Expo learning platform built for desktop web and mobile. The current seed content is:
 
-- Subject: Chemistry
-- Topic: Elements
-- Learning units: the first 30 chemical elements
+- Subjects: Chemistry, Geology, Physics, Biology, Mathematics, Astronomy / Astrophysics, and Geography
+- Chemistry topics: Elements plus 11 additional chemistry study paths
+- Geology topics: 15 seeded geology study paths spanning foundations, minerals, tectonics, hazards, stratigraphy, paleontology, marine geology, environmental geology, and applied geology
+- Additional subjects: seeded multi-topic libraries in Physics, Biology, Mathematics, Astronomy / Astrophysics, and Geography
+- Learning units: all 118 chemical elements plus seeded concept units across seven subjects
 - Structure per unit: 8 textbook-style chapters, flashcards, and quizzes
 
 All study state is stored locally with AsyncStorage. There is no backend, auth flow, or external database.
@@ -102,7 +104,7 @@ Key folders:
 
 - `app/`: Expo Router screens for home, subject, topic, unit, chapter, flashcards, and quiz flows
 - `components/`: reusable UI building blocks such as `AppShell`, cards, breadcrumbs, flashcards, and quiz presentation
-- `content/`: generalized learning schema plus seeded Chemistry content
+- `content/`: generalized learning schema plus seeded multi-subject content
 - `features/learning/`: route and progress helpers
 - `hooks/`: responsive/theme/store hooks
 - `store/`: local persistence provider for completion, bookmarks, quiz scores, flashcard review state, and continue-learning data
@@ -156,6 +158,39 @@ LearnHub stores the following locally:
 - reviewed flashcards
 - latest and best quiz scores
 - last visited study location for continue-learning
+
+## AI short-answer quiz mode
+
+The quiz screen now includes an optional AI short-answer mode alongside the existing local multiple-choice quiz.
+
+What it does:
+
+- sends the current chapter text to the OpenAI Responses API
+- generates 5 short-answer questions for that chapter session
+- evaluates each learner response with the same API
+- stores the resulting chapter score locally using the existing quiz persistence flow
+
+How to enable it:
+
+1. Open any chapter quiz screen.
+2. Switch to `AI Short Answer`.
+3. Enter an OpenAI API key on the screen and optionally save it locally on that device/browser.
+4. Generate the 5-question session.
+
+Optional local dev environment variables:
+
+```bash
+EXPO_PUBLIC_OPENAI_API_KEY=your_key_here
+EXPO_PUBLIC_OPENAI_MODEL=gpt-4.1-mini
+```
+
+Important:
+
+- The standard quiz remains available and still works offline.
+- The AI short-answer mode requires internet access.
+- This app currently calls the OpenAI API directly from the client in AI mode.
+- That is acceptable for personal/local testing, but not for a public production deployment.
+- For a public deployment, proxy OpenAI requests through your own server so the API key is not exposed to end users.
 
 ## Validation
 

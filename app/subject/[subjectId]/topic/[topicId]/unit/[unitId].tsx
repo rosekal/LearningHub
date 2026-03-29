@@ -8,12 +8,14 @@ import { ResponsiveLayout } from '@/components/ResponsiveLayout';
 import { SectionHeader } from '@/components/SectionHeader';
 import { useElementAccent } from '@/hooks/use-element-accent';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useBreakpoints } from '@/hooks/use-breakpoints';
 import { getSubjectById, getTopicById, getUnitById } from '@/content/catalog';
 import { getNextChapter, getQuizResult, getUnitProgress, isChapterComplete } from '@/features/learning/selectors';
 import { useStudy } from '@/hooks/use-study';
 import { chapterRoute, homeRoute, subjectRoute, topicRoute } from '@/utils/routes';
 import { getUnitStaticParams } from '@/utils/static-params';
 import { formatQuizScore } from '@/utils/format';
+import { interpolateByWidth } from '@/utils/responsive';
 
 export function generateStaticParams() {
   return getUnitStaticParams();
@@ -32,6 +34,7 @@ export default function UnitScreen() {
   const router = useRouter();
   const { progress } = useStudy();
   const accent = useElementAccent(unit?.id);
+  const { width, isTablet } = useBreakpoints();
 
   if (!subject || !topic || !unit) {
     return (
@@ -43,6 +46,52 @@ export default function UnitScreen() {
 
   const unitProgress = getUnitProgress(progress, unit);
   const nextChapter = getNextChapter(unit, progress);
+  const compact = !isTablet;
+  const heroPadding = Math.round(
+    interpolateByWidth({
+      width,
+      minValue: theme.spacing.lg,
+      maxValue: theme.spacing.xxl,
+      minWidth: 320,
+      maxWidth: 1100,
+    })
+  );
+  const heroTitleSize = Math.round(
+    interpolateByWidth({
+      width,
+      minValue: 36,
+      maxValue: 58,
+      minWidth: 320,
+      maxWidth: 1100,
+    })
+  );
+  const heroOverviewSize = Math.round(
+    interpolateByWidth({
+      width,
+      minValue: theme.typography.body,
+      maxValue: theme.typography.bodyLarge,
+      minWidth: 320,
+      maxWidth: 1100,
+    })
+  );
+  const heroBadgeSize = Math.round(
+    interpolateByWidth({
+      width,
+      minValue: 70,
+      maxValue: 92,
+      minWidth: 320,
+      maxWidth: 768,
+    })
+  );
+  const heroBadgeTextSize = Math.round(
+    interpolateByWidth({
+      width,
+      minValue: 28,
+      maxValue: 38,
+      minWidth: 320,
+      maxWidth: 768,
+    })
+  );
 
   const sidebar = (
     <View style={{ gap: theme.spacing.lg }}>
@@ -64,14 +113,15 @@ export default function UnitScreen() {
             letterSpacing: 1,
             textTransform: 'uppercase',
           }}>
-          Read book
+          Read the book
         </Text>
         <Text
           style={{
             color: theme.colors.text,
             fontFamily: theme.fonts.display,
-            fontSize: 30,
+            fontSize: compact ? 26 : 30,
             fontWeight: '700',
+            lineHeight: compact ? 34 : 38,
           }}>
           Continue with {nextChapter.title}
         </Text>
@@ -159,7 +209,7 @@ export default function UnitScreen() {
           style={{
             color: theme.colors.text,
             fontFamily: theme.fonts.display,
-            fontSize: 26,
+            fontSize: compact ? 22 : 26,
             fontWeight: '700',
           }}>
           Glossary
@@ -201,7 +251,7 @@ export default function UnitScreen() {
         borderWidth: 1,
         borderColor: accent.line,
         backgroundColor: accent.heroFrom,
-        padding: theme.spacing.xxl,
+        padding: heroPadding,
       }}>
       <View
         style={{
@@ -227,48 +277,53 @@ export default function UnitScreen() {
       </Text>
       <View
         style={{
-          flexDirection: 'row',
+          flexDirection: compact ? 'column' : 'row',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
           gap: theme.spacing.lg,
+          minWidth: 0,
         }}>
         <View style={{ flex: 1, gap: theme.spacing.md }}>
           <Text
             style={{
               color: accent.accentContrast,
               fontFamily: theme.fonts.display,
-              fontSize: 58,
+              fontSize: heroTitleSize,
               fontWeight: '700',
+              lineHeight: Math.round(heroTitleSize * 1.08),
+              flexShrink: 1,
             }}>
             {unit.title}
           </Text>
           <Text
             style={{
-              maxWidth: 820,
+              maxWidth: compact ? '100%' : 820,
               color: 'rgba(255,255,255,0.84)',
               fontFamily: theme.fonts.body,
-              fontSize: theme.typography.bodyLarge,
-              lineHeight: 30,
+              fontSize: heroOverviewSize,
+              lineHeight: heroOverviewSize >= 18 ? 30 : 26,
             }}>
             {unit.overview}
           </Text>
         </View>
         <View
           style={{
-            minWidth: 92,
-            minHeight: 92,
+            minWidth: heroBadgeSize,
+            minHeight: heroBadgeSize,
             borderRadius: 28,
             alignItems: 'center',
             justifyContent: 'center',
             borderWidth: 1,
             borderColor: 'rgba(255,255,255,0.22)',
             backgroundColor: 'rgba(255,255,255,0.08)',
+            alignSelf: compact ? 'flex-start' : 'auto',
+            paddingHorizontal: compact ? theme.spacing.md : theme.spacing.sm,
           }}>
           <Text
             style={{
               color: accent.accentContrast,
               fontFamily: theme.fonts.display,
-              fontSize: 38,
+              fontSize: heroBadgeTextSize,
               fontWeight: '700',
             }}>
             {unit.metadata[0]?.value}
@@ -291,6 +346,7 @@ export default function UnitScreen() {
               backgroundColor: 'rgba(255,255,255,0.06)',
               paddingHorizontal: theme.spacing.sm,
               paddingVertical: 8,
+              maxWidth: '100%',
             }}>
             <Text
               style={{
@@ -299,6 +355,8 @@ export default function UnitScreen() {
                 fontSize: 12,
                 fontWeight: '700',
                 letterSpacing: 0.6,
+                flexShrink: 1,
+                lineHeight: 18,
                 textTransform: 'uppercase',
               }}>
               {fact}
@@ -330,7 +388,11 @@ export default function UnitScreen() {
         { label: topic.title, href: topicRoute(subject.id, topic.id) },
         { label: unit.title },
       ]}>
-      <ResponsiveLayout sidebar={sidebar} sidebarPosition="start" sidebarWidth={336}>
+      <ResponsiveLayout
+        sidebar={sidebar}
+        sidebarPosition="start"
+        sidebarWidth={336}
+        mobileSidebarPosition="before">
         <View style={{ gap: theme.spacing.lg }}>
           <SectionHeader
             eyebrow="Chapters"

@@ -10,7 +10,13 @@ import { ProgressBadge } from '@/components/ProgressBadge';
 import { ResponsiveLayout } from '@/components/ResponsiveLayout';
 import { SectionHeader } from '@/components/SectionHeader';
 import { getChapterById, getSubjectById, getTopicById, getUnitById } from '@/content/catalog';
-import { chapterKey, getQuizResult, isChapterComplete } from '@/features/learning/selectors';
+import {
+  getChapterMasteryStatus,
+  getQuizResult,
+  getQuizReviewState,
+  isChapterBookmarked,
+  isChapterComplete,
+} from '@/features/learning/selectors';
 import { useElementAccent } from '@/hooks/use-element-accent';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useBreakpoints } from '@/hooks/use-breakpoints';
@@ -26,6 +32,7 @@ import {
 } from '@/utils/routes';
 import { getChapterStaticParams } from '@/utils/static-params';
 import { formatQuizScore, formatReadingTime } from '@/utils/format';
+import { interpolateByWidth } from '@/utils/responsive';
 
 export function generateStaticParams() {
   return getChapterStaticParams();
@@ -44,7 +51,7 @@ export default function ChapterScreen() {
   const chapter = getChapterById(subjectId, topicId, unitId, chapterId);
   const theme = useAppTheme();
   const accent = useElementAccent(unit?.id);
-  const { isDesktop } = useBreakpoints();
+  const { width, isDesktop, isTablet } = useBreakpoints();
   const router = useRouter();
   const { progress, markChapterComplete, setLastVisited } = useStudy();
 
@@ -71,7 +78,11 @@ export default function ChapterScreen() {
   }
 
   const completed = isChapterComplete(progress, unit.id, chapter.id);
+  const bookmarked = isChapterBookmarked(progress, unit.id, chapter.id);
   const result = getQuizResult(progress, unit.id, chapter.id);
+  const reviewState = getQuizReviewState(progress, unit.id, chapter.id);
+  const mastery = getChapterMasteryStatus(progress, unit, chapter);
+  const needsReview = (reviewState?.missedQuestions.length ?? 0) > 0;
   const currentChapterIndex = Math.max(
     0,
     unit.chapters.findIndex((candidate) => candidate.id === chapter.id)
@@ -80,6 +91,44 @@ export default function ChapterScreen() {
   const nextChapter =
     currentChapterIndex < unit.chapters.length - 1 ? unit.chapters[currentChapterIndex + 1] : undefined;
   const unitPositionPercent = completed ? 100 : ((currentChapterIndex + 1) / unit.chapters.length) * 100;
+  const proseSurface = isTablet ? theme.colors.surfaceElevated : accent.panel;
+  const compact = !isTablet;
+  const heroPadding = Math.round(
+    interpolateByWidth({
+      width,
+      minValue: theme.spacing.lg,
+      maxValue: theme.spacing.xxl,
+      minWidth: 320,
+      maxWidth: 1100,
+    })
+  );
+  const heroTitleSize = Math.round(
+    interpolateByWidth({
+      width,
+      minValue: 32,
+      maxValue: 52,
+      minWidth: 320,
+      maxWidth: 1100,
+    })
+  );
+  const heroOverviewSize = Math.round(
+    interpolateByWidth({
+      width,
+      minValue: 18,
+      maxValue: 22,
+      minWidth: 320,
+      maxWidth: 1100,
+    })
+  );
+  const chapterStateSummary = needsReview
+    ? 'Quiz review is still outstanding for this chapter.'
+    : mastery.quizPassed
+      ? 'Quiz passed and ready for spaced review later.'
+      : completed
+        ? 'Reading completed. The quiz still needs a passing result.'
+        : mastery.opened
+          ? 'In progress and ready to continue.'
+          : 'Not started yet.';
 
   const sidebar = (
     <View style={{ gap: theme.spacing.lg }}>
@@ -92,6 +141,17 @@ export default function ChapterScreen() {
           backgroundColor: theme.colors.surfaceElevated,
           padding: theme.spacing.xl,
         }}>
+        <Text
+          style={{
+            color: accent.accent,
+            fontFamily: theme.fonts.mono,
+            fontSize: 12,
+            fontWeight: '700',
+            letterSpacing: 1,
+            textTransform: 'uppercase',
+          }}>
+          Study controls
+        </Text>
         <ProgressBadge
           percentage={unitPositionPercent}
           detail={`Chapter ${currentChapterIndex + 1} of ${unit.chapters.length}${completed ? ' • marked complete' : ''}`}
@@ -119,6 +179,17 @@ export default function ChapterScreen() {
           onPress={() => router.push(quizRoute(subject.id, topic.id, unit.id, chapter.id))}
           accent={accent}
         />
+        {needsReview ? (
+          <Text
+            style={{
+              color: theme.colors.textSoft,
+              fontFamily: theme.fonts.body,
+              fontSize: 14,
+              lineHeight: 22,
+            }}>
+            Retry the missed questions or review the wrong answers from the quiz screen to clear the review state.
+          </Text>
+        ) : null}
       </View>
 
       <View
@@ -148,7 +219,27 @@ export default function ChapterScreen() {
             fontSize: 18,
             lineHeight: 28,
           }}>
-          Local key: {chapterKey(unit.id, chapter.id)}
+          {chapterStateSummary}
+        </Text>
+        <Text
+          style={{
+            color: theme.colors.textMuted,
+            fontFamily: theme.fonts.body,
+            fontSize: 14,
+            lineHeight: 22,
+          }}>
+          {bookmarked ? 'Bookmarked for quick return.' : 'Bookmark this chapter to return quickly later.'}
+        </Text>
+        <Text
+          style={{
+            color: theme.colors.textMuted,
+            fontFamily: theme.fonts.body,
+            fontSize: 14,
+            lineHeight: 22,
+          }}>
+          {mastery.reviewedFlashcards > 0
+            ? `${mastery.reviewedFlashcards} of ${mastery.totalFlashcards} flashcards reviewed locally.`
+            : 'Flashcards not reviewed yet.'}
         </Text>
         <Text
           style={{
@@ -158,7 +249,7 @@ export default function ChapterScreen() {
             lineHeight: 22,
           }}>
           {result
-            ? `Best quiz score: ${formatQuizScore(result.bestScore, result.totalQuestions)}`
+            ? `Best quiz score: ${formatQuizScore(result.bestScore, result.totalQuestions)}${needsReview ? ' • review still pending' : ''}`
             : 'Quiz not taken yet'}
         </Text>
       </View>
@@ -248,7 +339,7 @@ export default function ChapterScreen() {
         borderWidth: 1,
         borderColor: accent.line,
         backgroundColor: accent.heroFrom,
-        padding: theme.spacing.xxl,
+        padding: heroPadding,
       }}>
       <View
         style={{
@@ -276,18 +367,19 @@ export default function ChapterScreen() {
         style={{
           color: accent.accentContrast,
           fontFamily: theme.fonts.display,
-          fontSize: 52,
+          fontSize: heroTitleSize,
           fontWeight: '700',
+          lineHeight: Math.round(heroTitleSize * 1.1),
         }}>
         {chapter.title}
       </Text>
       <Text
         style={{
-          maxWidth: 860,
+          maxWidth: compact ? '100%' : 860,
           color: 'rgba(255,255,255,0.82)',
           fontFamily: theme.fonts.reading,
-          fontSize: 22,
-          lineHeight: 34,
+          fontSize: heroOverviewSize,
+          lineHeight: heroOverviewSize >= 20 ? 34 : 30,
         }}>
         {chapter.overview}
       </Text>
@@ -308,6 +400,7 @@ export default function ChapterScreen() {
                 backgroundColor: 'rgba(255,255,255,0.06)',
                 paddingHorizontal: theme.spacing.sm,
                 paddingVertical: 8,
+                maxWidth: '100%',
               }}>
               <Text
                 style={{
@@ -316,6 +409,8 @@ export default function ChapterScreen() {
                   fontSize: 12,
                   fontWeight: '700',
                   letterSpacing: 0.7,
+                  flexShrink: 1,
+                  lineHeight: 18,
                   textTransform: 'uppercase',
                 }}>
                 {item}
@@ -338,7 +433,11 @@ export default function ChapterScreen() {
         { label: unit.title, href: unitRoute(subject.id, topic.id, unit.id) },
         { label: chapter.title },
       ]}>
-      <ResponsiveLayout sidebar={sidebar} sidebarPosition="start" sidebarWidth={336}>
+      <ResponsiveLayout
+        sidebar={sidebar}
+        sidebarPosition="start"
+        sidebarWidth={336}
+        mobileSidebarPosition="before">
         <View
           style={{
             width: '100%',
@@ -349,7 +448,7 @@ export default function ChapterScreen() {
           <SectionHeader
             eyebrow="Reading"
             title="Digital textbook layout"
-            description="Structured local blocks are rendered as long-form reading, preserving comfortable measure, visual hierarchy, and adjacent study actions."
+            description="Structured local blocks render as long-form reading, preserving a comfortable measure, clear hierarchy, and adjacent study actions."
             accent={accent}
           />
 
@@ -377,81 +476,408 @@ export default function ChapterScreen() {
               style={{
                 color: theme.colors.text,
                 fontFamily: theme.fonts.reading,
-                fontSize: 22,
-                lineHeight: 36,
+                fontSize: compact ? 20 : 22,
+                lineHeight: compact ? 32 : 36,
               }}>
               {chapter.overview}
             </Text>
           </View>
 
-          {chapter.blocks.map((block) => {
-            if (block.type === 'paragraph') {
-              return (
-                <Text
-                  key={block.id}
-                  style={{
-                    color: theme.colors.text,
-                    fontFamily: theme.fonts.reading,
-                    fontSize: isDesktop ? 20 : 19,
-                    lineHeight: isDesktop ? 38 : 34,
-                  }}>
-                  {block.text}
-                </Text>
-              );
-            }
+          <View
+            style={{
+              gap: theme.spacing.xl,
+              borderRadius: theme.radius.xl,
+              borderWidth: 1,
+              borderColor: accent.line,
+              backgroundColor: proseSurface,
+              padding: isTablet ? theme.spacing.xxl : theme.spacing.xl,
+              ...(isTablet ? theme.shadow.light : {}),
+            }}>
+            {chapter.blocks.map((block) => {
+              if (block.type === 'paragraph') {
+                return (
+                  <Text
+                    key={block.id}
+                    style={{
+                      color: theme.colors.text,
+                      fontFamily: theme.fonts.reading,
+                      fontSize: isDesktop ? 20 : 19,
+                      lineHeight: isDesktop ? 38 : 34,
+                    }}>
+                    {block.text}
+                  </Text>
+                );
+              }
 
-            if (block.type === 'bullet-list') {
-              return (
-                <View
-                  key={block.id}
-                  style={{
-                    gap: theme.spacing.md,
-                    borderRadius: theme.radius.xl,
-                    borderWidth: 1,
-                    borderColor: accent.line,
-                    backgroundColor: theme.colors.surfaceElevated,
-                    padding: theme.spacing.xl,
-                  }}>
-                  {block.title ? (
+              if (block.type === 'bullet-list') {
+                return (
+                  <View
+                    key={block.id}
+                    style={{
+                      gap: theme.spacing.md,
+                      borderRadius: theme.radius.xl,
+                      borderWidth: 1,
+                      borderColor: accent.line,
+                      backgroundColor: theme.colors.surfaceElevated,
+                      padding: theme.spacing.xl,
+                    }}>
+                    {block.title ? (
+                      <Text
+                        style={{
+                          color: theme.colors.text,
+                          fontFamily: theme.fonts.display,
+                          fontSize: 30,
+                          fontWeight: '700',
+                        }}>
+                        {block.title}
+                      </Text>
+                    ) : null}
+                    {block.items.map((item) => (
+                      <View key={item} style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+                        <Text
+                          style={{
+                            color: accent.accent,
+                            fontFamily: theme.fonts.mono,
+                            fontSize: 16,
+                            lineHeight: 30,
+                          }}>
+                          •
+                        </Text>
+                        <Text
+                          style={{
+                            flex: 1,
+                            color: theme.colors.text,
+                            fontFamily: theme.fonts.reading,
+                            fontSize: 18,
+                            lineHeight: 30,
+                          }}>
+                          {item}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                );
+              }
+
+              if (block.type === 'equation') {
+                return (
+                  <View
+                    key={block.id}
+                    style={{
+                      gap: theme.spacing.md,
+                      borderRadius: theme.radius.xl,
+                      borderWidth: 1,
+                      borderColor: accent.line,
+                      backgroundColor: theme.colors.surfaceElevated,
+                      padding: theme.spacing.xl,
+                    }}>
+                    {block.title ? (
+                      <Text
+                        style={{
+                          color: theme.colors.text,
+                          fontFamily: theme.fonts.display,
+                          fontSize: 26,
+                          fontWeight: '700',
+                        }}>
+                        {block.title}
+                      </Text>
+                    ) : null}
+                    <Text
+                      style={{
+                        color: accent.accentStrong,
+                        fontFamily: theme.fonts.mono,
+                        fontSize: 18,
+                        lineHeight: 28,
+                      }}>
+                      {block.expression}
+                    </Text>
+                    {block.explanation ? (
+                      <Text
+                        style={{
+                          color: theme.colors.textMuted,
+                          fontFamily: theme.fonts.body,
+                          fontSize: 16,
+                          lineHeight: 26,
+                        }}>
+                        {block.explanation}
+                      </Text>
+                    ) : null}
+                  </View>
+                );
+              }
+
+              if (block.type === 'table') {
+                return (
+                  <View
+                    key={block.id}
+                    style={{
+                      gap: theme.spacing.md,
+                      borderRadius: theme.radius.xl,
+                      borderWidth: 1,
+                      borderColor: accent.line,
+                      backgroundColor: theme.colors.surfaceElevated,
+                      padding: theme.spacing.xl,
+                    }}>
+                    {block.title ? (
+                      <Text
+                        style={{
+                          color: theme.colors.text,
+                          fontFamily: theme.fonts.display,
+                          fontSize: 26,
+                          fontWeight: '700',
+                        }}>
+                        {block.title}
+                      </Text>
+                    ) : null}
+                    <View style={{ gap: theme.spacing.xs }}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          gap: theme.spacing.sm,
+                          borderBottomWidth: 1,
+                          borderBottomColor: accent.line,
+                          paddingBottom: theme.spacing.sm,
+                        }}>
+                        {block.columns.map((column) => (
+                          <Text
+                            key={column}
+                            style={{
+                              flex: 1,
+                              color: accent.accentStrong,
+                              fontFamily: theme.fonts.mono,
+                              fontSize: 12,
+                              fontWeight: '700',
+                              letterSpacing: 0.8,
+                              textTransform: 'uppercase',
+                            }}>
+                            {column}
+                          </Text>
+                        ))}
+                      </View>
+                      {block.rows.map((row, rowIndex) => (
+                        <View
+                          key={`${block.id}-row-${rowIndex}`}
+                          style={{
+                            flexDirection: 'row',
+                            gap: theme.spacing.sm,
+                            paddingVertical: theme.spacing.sm,
+                            borderBottomWidth: rowIndex === block.rows.length - 1 ? 0 : 1,
+                            borderBottomColor: theme.colors.border,
+                          }}>
+                          {row.map((value, valueIndex) => (
+                            <Text
+                              key={`${block.id}-cell-${rowIndex}-${valueIndex}`}
+                              style={{
+                                flex: 1,
+                                color: theme.colors.text,
+                                fontFamily: theme.fonts.body,
+                                fontSize: 15,
+                                lineHeight: 24,
+                              }}>
+                              {value}
+                            </Text>
+                          ))}
+                        </View>
+                      ))}
+                    </View>
+                    {block.note ? (
+                      <Text
+                        style={{
+                          color: theme.colors.textSoft,
+                          fontFamily: theme.fonts.body,
+                          fontSize: 14,
+                          lineHeight: 22,
+                        }}>
+                        {block.note}
+                      </Text>
+                    ) : null}
+                  </View>
+                );
+              }
+
+              if (block.type === 'worked-example') {
+                return (
+                  <View
+                    key={block.id}
+                    style={{
+                      gap: theme.spacing.md,
+                      borderRadius: theme.radius.xl,
+                      borderWidth: 1,
+                      borderColor: accent.line,
+                      backgroundColor: theme.colors.surfaceElevated,
+                      padding: theme.spacing.xl,
+                    }}>
                     <Text
                       style={{
                         color: theme.colors.text,
                         fontFamily: theme.fonts.display,
-                        fontSize: 30,
+                        fontSize: 28,
                         fontWeight: '700',
                       }}>
                       {block.title}
                     </Text>
-                  ) : null}
-                  {block.items.map((item) => (
-                    <View key={item} style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+                    <Text
+                      style={{
+                        color: theme.colors.text,
+                        fontFamily: theme.fonts.reading,
+                        fontSize: 18,
+                        lineHeight: 30,
+                      }}>
+                      {block.prompt}
+                    </Text>
+                    {block.steps.map((step, stepIndex) => (
+                      <View key={`${block.id}-step-${stepIndex}`} style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+                        <Text
+                          style={{
+                            color: accent.accent,
+                            fontFamily: theme.fonts.mono,
+                            fontSize: 12,
+                            fontWeight: '700',
+                            letterSpacing: 0.8,
+                            textTransform: 'uppercase',
+                            lineHeight: 24,
+                          }}>
+                          Step {stepIndex + 1}
+                        </Text>
+                        <Text
+                          style={{
+                            flex: 1,
+                            color: theme.colors.textMuted,
+                            fontFamily: theme.fonts.body,
+                            fontSize: 16,
+                            lineHeight: 24,
+                          }}>
+                          {step}
+                        </Text>
+                      </View>
+                    ))}
+                    {block.takeaway ? (
                       <Text
                         style={{
-                          color: accent.accent,
-                          fontFamily: theme.fonts.mono,
-                          fontSize: 16,
-                          lineHeight: 30,
+                          color: accent.accentStrong,
+                          fontFamily: theme.fonts.body,
+                          fontSize: 15,
+                          lineHeight: 24,
                         }}>
-                        •
+                        {block.takeaway}
                       </Text>
-                      <Text
-                        style={{
-                          flex: 1,
-                          color: theme.colors.text,
-                          fontFamily: theme.fonts.reading,
-                          fontSize: 18,
-                          lineHeight: 30,
-                        }}>
-                        {item}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              );
-            }
+                    ) : null}
+                  </View>
+                );
+              }
 
-            return <FigureBlock key={block.id} block={block} accent={accent} />;
-          })}
+              if (block.type === 'exercise-set') {
+                return (
+                  <View
+                    key={block.id}
+                    style={{
+                      gap: theme.spacing.md,
+                      borderRadius: theme.radius.xl,
+                      borderWidth: 1,
+                      borderColor: accent.line,
+                      backgroundColor: theme.colors.surfaceElevated,
+                      padding: theme.spacing.xl,
+                    }}>
+                    <Text
+                      style={{
+                        color: theme.colors.text,
+                        fontFamily: theme.fonts.display,
+                        fontSize: 28,
+                        fontWeight: '700',
+                      }}>
+                      {block.title}
+                    </Text>
+                    <Text
+                      style={{
+                        color: theme.colors.textMuted,
+                        fontFamily: theme.fonts.body,
+                        fontSize: 16,
+                        lineHeight: 24,
+                      }}>
+                      {block.instructions}
+                    </Text>
+                    {block.questions.map((item, itemIndex) => (
+                      <View key={`${block.id}-question-${itemIndex}`} style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+                        <Text
+                          style={{
+                            color: accent.accent,
+                            fontFamily: theme.fonts.mono,
+                            fontSize: 12,
+                            fontWeight: '700',
+                            letterSpacing: 0.8,
+                            textTransform: 'uppercase',
+                            lineHeight: 24,
+                          }}>
+                          {itemIndex + 1}
+                        </Text>
+                        <Text
+                          style={{
+                            flex: 1,
+                            color: theme.colors.text,
+                            fontFamily: theme.fonts.reading,
+                            fontSize: 17,
+                            lineHeight: 28,
+                          }}>
+                          {item}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                );
+              }
+
+              return <FigureBlock key={block.id} block={block} accent={accent} />;
+            })}
+          </View>
+
+          {chapter.references?.length ? (
+            <View
+              style={{
+                gap: theme.spacing.md,
+                borderRadius: theme.radius.xl,
+                borderWidth: 1,
+                borderColor: accent.line,
+                backgroundColor: theme.colors.surfaceElevated,
+                padding: theme.spacing.xl,
+              }}>
+              <Text
+                style={{
+                  color: accent.accent,
+                  fontFamily: theme.fonts.mono,
+                  fontSize: 12,
+                  fontWeight: '700',
+                  letterSpacing: 1,
+                  textTransform: 'uppercase',
+                }}>
+                References
+              </Text>
+              {chapter.references.map((reference) => (
+                <View key={`${reference.title}-${reference.detail ?? ''}`} style={{ gap: 2 }}>
+                  <Text
+                    style={{
+                      color: theme.colors.text,
+                      fontFamily: theme.fonts.body,
+                      fontSize: 16,
+                      fontWeight: '600',
+                      lineHeight: 24,
+                    }}>
+                    {reference.title}
+                  </Text>
+                  {reference.detail ? (
+                    <Text
+                      style={{
+                        color: theme.colors.textMuted,
+                        fontFamily: theme.fonts.body,
+                        fontSize: 14,
+                        lineHeight: 22,
+                      }}>
+                      {reference.detail}
+                    </Text>
+                  ) : null}
+                </View>
+              ))}
+            </View>
+          ) : null}
 
           <View
             style={{

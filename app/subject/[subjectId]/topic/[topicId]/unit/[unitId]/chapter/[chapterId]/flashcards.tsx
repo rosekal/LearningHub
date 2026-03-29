@@ -6,7 +6,7 @@ import { AppShell } from '@/components/AppShell';
 import { FlashcardDeck } from '@/components/FlashcardDeck';
 import { SectionHeader } from '@/components/SectionHeader';
 import { getChapterById, getSubjectById, getTopicById, getUnitById } from '@/content/catalog';
-import { chapterKey } from '@/features/learning/selectors';
+import { chapterKey, getFlashcardConfidenceSummary } from '@/features/learning/selectors';
 import { useElementAccent } from '@/hooks/use-element-accent';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useStudy } from '@/hooks/use-study';
@@ -30,7 +30,7 @@ export default function FlashcardsScreen() {
   const chapter = getChapterById(subjectId, topicId, unitId, chapterId);
   const theme = useAppTheme();
   const accent = useElementAccent(unit?.id);
-  const { progress, markFlashcardReviewed, setLastVisited } = useStudy();
+  const { progress, markFlashcardReviewed, setFlashcardConfidence, setLastVisited } = useStudy();
 
   useEffect(() => {
     if (!subject || !topic || !unit || !chapter) {
@@ -55,6 +55,7 @@ export default function FlashcardsScreen() {
   }
 
   const reviewedCount = progress.reviewedFlashcards[chapterKey(unit.id, chapter.id)]?.length ?? 0;
+  const confidenceSummary = getFlashcardConfidenceSummary(progress, unit.id, chapter.id);
 
   return (
     <AppShell
@@ -109,7 +110,18 @@ export default function FlashcardsScreen() {
               lineHeight: 30,
             }}>
             Review the chapter as a study deck. Cards are marked as reviewed when you flip them,
-            and the count persists locally for this chapter.
+            and you can rate each one as easy, unsure, or hard to build a future review signal.
+          </Text>
+          <Text
+            style={{
+              color: 'rgba(255,255,255,0.72)',
+              fontFamily: theme.fonts.mono,
+              fontSize: 12,
+              fontWeight: '700',
+              letterSpacing: 0.8,
+              textTransform: 'uppercase',
+            }}>
+            {confidenceSummary.easy} easy • {confidenceSummary.unsure} unsure • {confidenceSummary.hard} hard
           </Text>
         </View>
       }
@@ -132,6 +144,12 @@ export default function FlashcardsScreen() {
           cards={chapter.flashcards}
           reviewedCount={reviewedCount}
           onReview={(flashcardId) => markFlashcardReviewed(unit.id, chapter.id, flashcardId)}
+          getConfidence={(flashcardId) =>
+            progress.flashcardConfidence[chapterKey(unit.id, chapter.id)]?.[flashcardId]
+          }
+          onRateConfidence={(flashcardId, confidence) =>
+            setFlashcardConfidence(unit.id, chapter.id, flashcardId, confidence)
+          }
           accent={accent}
         />
       </View>

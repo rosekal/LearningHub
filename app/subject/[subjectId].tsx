@@ -3,14 +3,17 @@ import { Text, View } from 'react-native';
 
 import { AppShell } from '@/components/AppShell';
 import { Button } from '@/components/Button';
+import { RecommendedActionCard } from '@/components/RecommendedActionCard';
 import { SectionHeader } from '@/components/SectionHeader';
 import { TopicCard } from '@/components/TopicCard';
 import { useAppTheme } from '@/hooks/use-app-theme';
-import { getSubjectById } from '@/content/catalog';
-import { getTopicProgress } from '@/features/learning/selectors';
+import { getChapterById, getSubjectById, getTopicById, getUnitById } from '@/content/catalog';
+import { getRecommendedActionForSubject, getTopicProgress } from '@/features/learning/selectors';
 import { useStudy } from '@/hooks/use-study';
-import { homeRoute, topicRoute } from '@/utils/routes';
+import { chapterRoute, homeRoute, topicRoute } from '@/utils/routes';
 import { getSubjectStaticParams } from '@/utils/static-params';
+import { formatCount } from '@/utils/format';
+import { getElementAccentPalette } from '@/theme/element-accents';
 
 export function generateStaticParams() {
   return getSubjectStaticParams();
@@ -37,6 +40,16 @@ export default function SubjectScreen() {
       count + topic.learningUnits.reduce((unitCount, unit) => unitCount + unit.chapters.length, 0),
     0
   );
+  const subjectRecommendation = getRecommendedActionForSubject(progress, subject);
+  const recommendedTopic = getTopicById(subject.id, subjectRecommendation.topicId);
+  const recommendedUnit = getUnitById(subject.id, subjectRecommendation.topicId, subjectRecommendation.unitId);
+  const recommendedChapter = getChapterById(
+    subject.id,
+    subjectRecommendation.topicId,
+    subjectRecommendation.unitId,
+    subjectRecommendation.chapterId
+  );
+  const recommendedAccent = getElementAccentPalette(recommendedUnit?.id, theme);
 
   const hero = (
     <View
@@ -96,7 +109,11 @@ export default function SubjectScreen() {
           flexWrap: 'wrap',
           gap: theme.spacing.sm,
         }}>
-        {[`${subject.topics.length} topic`, `${totalUnits} units`, `${totalChapters} chapters`].map((item) => (
+        {[
+          formatCount(subject.topics.length, 'topic'),
+          formatCount(totalUnits, 'unit'),
+          formatCount(totalChapters, 'chapter'),
+        ].map((item) => (
           <View
             key={item}
             style={{
@@ -132,10 +149,35 @@ export default function SubjectScreen() {
         { label: subject.title },
       ]}>
       <View style={{ gap: theme.spacing.md }}>
+        {recommendedTopic && recommendedUnit && recommendedChapter ? (
+          <RecommendedActionCard
+            eyebrow={subjectRecommendation.isStartHere ? 'Start Here' : 'Recommended Next'}
+            title={`${recommendedTopic.title} • ${recommendedUnit.title}`}
+            description={`${subjectRecommendation.reason} ${recommendedChapter.overview}`}
+            ctaLabel={subjectRecommendation.isStartHere ? 'Start Chapter' : 'Continue Chapter'}
+            onPress={() =>
+              router.push(
+                chapterRoute(
+                  subject.id,
+                  subjectRecommendation.topicId,
+                  subjectRecommendation.unitId,
+                  subjectRecommendation.chapterId
+                )
+              )
+            }
+            tags={[
+              recommendedUnit.shortTitle,
+              recommendedChapter.title,
+              subjectRecommendation.prerequisiteLabel ?? 'Subject sequence',
+            ]}
+            accent={recommendedAccent}
+          />
+        ) : null}
+
         <SectionHeader
           eyebrow="Topics"
           title="Study paths"
-          description="Each topic becomes a distinct branch of subject content. The current chemistry release centers on the first thirty elements as a curated scientific collection."
+          description={`Each topic becomes a distinct branch of subject content. ${subject.title} currently spans ${formatCount(subject.topics.length, 'topic')} and ${formatCount(totalUnits, 'seeded learning unit')} across the same reading, flashcard, and quiz workflow.`}
           action={<Button label="Back Home" variant="ghost" icon="arrow-back-outline" onPress={() => router.push(homeRoute())} />}
         />
         {subject.topics.map((topic) => {
@@ -147,6 +189,7 @@ export default function SubjectScreen() {
               topic={topic}
               progressPercentage={topicProgress.percentage}
               detail={`${topicProgress.completed} of ${topicProgress.total} chapter readings completed`}
+              href={topicRoute(subject.id, topic.id)}
               onPress={() => router.push(topicRoute(subject.id, topic.id))}
             />
           );

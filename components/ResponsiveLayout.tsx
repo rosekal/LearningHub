@@ -11,6 +11,7 @@ interface ResponsiveLayoutProps {
   contentStyle?: StyleProp<ViewStyle>;
   sidebarPosition?: 'start' | 'end';
   sidebarWidth?: number;
+  mobileSidebarPosition?: 'before' | 'after';
 }
 
 export function ResponsiveLayout({
@@ -21,8 +22,10 @@ export function ResponsiveLayout({
   contentStyle,
   sidebarPosition = 'end',
   sidebarWidth = 320,
+  mobileSidebarPosition = 'after',
 }: ResponsiveLayoutProps) {
   const { contentMaxWidth, gutter, isDesktop } = useBreakpoints();
+  const showSidebarFirstOnMobile = !isDesktop && mobileSidebarPosition === 'before';
 
   return (
     <View
@@ -42,11 +45,11 @@ export function ResponsiveLayout({
             alignItems: 'flex-start',
             gap: gutter,
           }}>
-          {sidebarPosition === 'start' && isDesktop ? (
+          {(sidebarPosition === 'start' && isDesktop) || showSidebarFirstOnMobile ? (
             <View style={[{ width: sidebarWidth }, sidebarStyle]}>{sidebar}</View>
           ) : null}
           <View style={[{ flex: 1, width: '100%' }, contentStyle]}>{children}</View>
-          {sidebarPosition === 'end' || !isDesktop ? (
+          {(sidebarPosition === 'end' && isDesktop) || (!isDesktop && !showSidebarFirstOnMobile) ? (
             <View style={[{ width: isDesktop ? sidebarWidth : '100%' }, sidebarStyle]}>{sidebar}</View>
           ) : null}
         </View>

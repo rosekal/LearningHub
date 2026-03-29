@@ -1,0 +1,171 @@
+import {
+  createStructuredSubject,
+  defaultSubjectAccentCycle,
+  structuredUnits,
+  type StructuredTopicSeed,
+} from '@/content/subjects/shared/createStructuredSubject';
+
+const topics: StructuredTopicSeed[] = [
+  {
+    id: 'foundations-of-ai',
+    title: 'Foundations of AI',
+    description:
+      'Core ideas, history, problem types, and the role of representation, inference, and learning in artificial intelligence.',
+    units: structuredUnits([
+      'What Is Artificial Intelligence?',
+      'History of AI',
+      'Symbolic vs Statistical AI',
+      'Search and Problem Solving',
+      'Knowledge Representation',
+      'Reasoning Under Uncertainty',
+    ]),
+  },
+  {
+    id: 'foundations-of-machine-learning',
+    title: 'Foundations of Machine Learning',
+    description:
+      'Basic machine learning concepts, workflows, data splits, evaluation, and generalization.',
+    units: structuredUnits([
+      'What Is Machine Learning?',
+      'Supervised Learning',
+      'Unsupervised Learning',
+      'Training, Validation, and Test Sets',
+      'Features and Labels',
+      'Overfitting and Underfitting',
+      'Bias-Variance Tradeoff',
+      'Metrics and Model Evaluation',
+    ]),
+  },
+  {
+    id: 'core-supervised-learning-methods',
+    title: 'Core Supervised Learning Methods',
+    description:
+      'Classic predictive models for regression and classification.',
+    units: structuredUnits([
+      'Linear Regression',
+      'Logistic Regression',
+      'Decision Trees',
+      'Random Forests',
+      'Gradient Boosting Basics',
+      { title: 'k-Nearest Neighbors', aliases: ['K nearest neighbors'] },
+      'Support Vector Machines',
+      'Model Selection',
+    ]),
+  },
+  {
+    id: 'unsupervised-learning-and-representation',
+    title: 'Unsupervised Learning and Representation',
+    description:
+      'Clustering, dimensionality reduction, feature learning, and latent structure in data.',
+    units: structuredUnits([
+      'Clustering Basics',
+      { title: 'k-Means', aliases: ['K means'] },
+      'Hierarchical Clustering',
+      'PCA',
+      'Embeddings Basics',
+      'Anomaly Detection',
+      'Topic Modeling Overview',
+      'Representation Learning Concepts',
+    ]),
+  },
+  {
+    id: 'neural-networks-and-deep-learning',
+    title: 'Neural Networks and Deep Learning',
+    description:
+      'Artificial neural networks, backpropagation, deep architectures, and modern model training.',
+    units: structuredUnits([
+      'Perceptrons and Neural Units',
+      'Feedforward Neural Networks',
+      'Activation Functions',
+      'Backpropagation',
+      'Optimization and Gradient Descent',
+      'Regularization in Deep Learning',
+      'Convolutional Neural Networks',
+      'Recurrent Networks and Sequence Models',
+      'Transformers Overview',
+    ]),
+  },
+  {
+    id: 'natural-language-processing',
+    title: 'Natural Language Processing',
+    description:
+      'Text processing, language models, embeddings, sequence tasks, and modern NLP systems.',
+    units: structuredUnits([
+      'Text Representation',
+      'Tokenization',
+      'Language Modeling',
+      'Word Embeddings',
+      'Sequence-to-Sequence Models',
+      'Attention Mechanisms',
+      'Transformers in NLP',
+      'Information Retrieval Basics',
+      'Evaluation in NLP',
+    ]),
+  },
+  {
+    id: 'computer-vision',
+    title: 'Computer Vision',
+    description:
+      'Image representation, feature extraction, recognition, and deep vision systems.',
+    units: structuredUnits([
+      'Images as Data',
+      'Image Features',
+      'Classification in Vision',
+      'Object Detection',
+      'Segmentation',
+      'CNNs for Vision',
+      'Vision Transformers Overview',
+      'Multimodal Models Basics',
+    ]),
+  },
+  {
+    id: 'reinforcement-learning',
+    title: 'Reinforcement Learning',
+    description:
+      'Agents, environments, rewards, policies, and sequential decision-making.',
+    units: structuredUnits([
+      'Reinforcement Learning Basics',
+      'Markov Decision Processes',
+      'Value Functions',
+      'Policy Learning',
+      'Exploration vs Exploitation',
+      'Q-Learning',
+      'Policy Gradient Basics',
+      'Applications of Reinforcement Learning',
+    ]),
+  },
+  {
+    id: 'ai-systems-safety-and-ethics',
+    title: 'AI Systems, Safety, and Ethics',
+    description:
+      'Deployment, reliability, fairness, interpretability, and governance in AI systems.',
+    units: structuredUnits([
+      'ML Systems Lifecycle',
+      'Data Pipelines',
+      'Model Serving',
+      'Monitoring and Drift',
+      'Explainability Basics',
+      'Fairness and Bias in AI',
+      'Privacy in ML',
+      'Safety and Alignment Concepts',
+      'AI Governance and Ethics',
+    ]),
+  },
+];
+
+const built = createStructuredSubject({
+  id: 'machine-learning-ai',
+  title: 'Machine Learning / AI',
+  description:
+    'Local-first machine learning and AI content spanning classic methods, deep learning, language, vision, reinforcement learning, and responsible deployment.',
+  tagline: 'Study modern AI through connected modeling, evaluation, systems, and ethics pathways.',
+  accent: 'cobalt',
+  practitionerPlural: 'machine learning practitioners',
+  topics,
+  accentCycle: defaultSubjectAccentCycle,
+});
+
+export const machineLearningAiSubject = built.subject;
+export const machineLearningAiTopics = built.topics;
+export const machineLearningAiUnits = built.units;
+export const machineLearningAiAccentSources = built.accentSources;

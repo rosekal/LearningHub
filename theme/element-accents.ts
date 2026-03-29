@@ -1,4 +1,5 @@
 import type { AppTheme, ThemeMode } from '@/theme/tokens';
+import { subjectAccentSources } from '@/content/subjects';
 
 export interface ElementAccentPalette {
   id: string;
@@ -28,8 +29,8 @@ export interface ElementBackdropPalette {
   gradientStart: string;
   gradientMid: string;
   gradientEnd: string;
-  washStart: string;
-  washEnd: string;
+  overlayStart: string;
+  overlayEnd: string;
   divider: string;
 }
 
@@ -73,6 +74,32 @@ function withAlpha(hex: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+function tintHex(hex: string, ratio: number) {
+  return mixHex(hex, '#ffffff', ratio);
+}
+
+function shadeHex(hex: string, ratio: number) {
+  return mixHex(hex, '#000000', ratio);
+}
+
+function buildTonalBackdrop(theme: AppTheme, baseTone: string, divider: string): ElementBackdropPalette {
+  const highlight = theme.mode === 'dark' ? tintHex(baseTone, 0.58) : tintHex(baseTone, 0.68);
+  const midTone = theme.mode === 'dark' ? tintHex(baseTone, 0.22) : tintHex(baseTone, 0.24);
+  const shadow = theme.mode === 'dark' ? shadeHex(baseTone, 0.5) : shadeHex(baseTone, 0.46);
+  const overlayStart = theme.mode === 'dark' ? tintHex(baseTone, 0.42) : tintHex(baseTone, 0.44);
+  const overlayEnd = theme.mode === 'dark' ? shadeHex(baseTone, 0.36) : shadeHex(baseTone, 0.34);
+
+  return {
+    canvas: baseTone,
+    gradientStart: highlight,
+    gradientMid: midTone,
+    gradientEnd: shadow,
+    overlayStart,
+    overlayEnd,
+    divider,
+  };
+}
+
 function buildFallback(theme: AppTheme): ElementAccentPalette {
   return {
     id: 'learnhub',
@@ -87,6 +114,14 @@ function buildFallback(theme: AppTheme): ElementAccentPalette {
     glow: theme.colors.accentGlow,
     heroFrom: theme.mode === 'dark' ? '#091724' : '#10233C',
     heroTo: theme.mode === 'dark' ? '#173554' : '#1C4167',
+  };
+}
+
+function aliasAccent(source: ElementAccentPalette, id: string, label: string): ElementAccentPalette {
+  return {
+    ...source,
+    id,
+    label,
   };
 }
 
@@ -936,6 +971,115 @@ const darkAccents: AccentMap = {
   },
 };
 
+const accentAliasDefinitions: Array<{ id: string; label: string; source: string }> = [
+  { id: 'gallium', label: 'Gallium', source: 'aluminum' },
+  { id: 'germanium', label: 'Germanium', source: 'silicon' },
+  { id: 'arsenic', label: 'Arsenic', source: 'phosphorus' },
+  { id: 'selenium', label: 'Selenium', source: 'sulfur' },
+  { id: 'bromine', label: 'Bromine', source: 'chlorine' },
+  { id: 'krypton', label: 'Krypton', source: 'argon' },
+  { id: 'rubidium', label: 'Rubidium', source: 'potassium' },
+  { id: 'strontium', label: 'Strontium', source: 'calcium' },
+  { id: 'yttrium', label: 'Yttrium', source: 'scandium' },
+  { id: 'zirconium', label: 'Zirconium', source: 'titanium' },
+  { id: 'niobium', label: 'Niobium', source: 'vanadium' },
+  { id: 'molybdenum', label: 'Molybdenum', source: 'chromium' },
+  { id: 'technetium', label: 'Technetium', source: 'manganese' },
+  { id: 'ruthenium', label: 'Ruthenium', source: 'cobalt' },
+  { id: 'rhodium', label: 'Rhodium', source: 'nickel' },
+  { id: 'palladium', label: 'Palladium', source: 'magnesium' },
+  { id: 'silver', label: 'Silver', source: 'zinc' },
+  { id: 'cadmium', label: 'Cadmium', source: 'lithium' },
+  { id: 'indium', label: 'Indium', source: 'sodium' },
+  { id: 'tin', label: 'Tin', source: 'aluminum' },
+  { id: 'antimony', label: 'Antimony', source: 'phosphorus' },
+  { id: 'tellurium', label: 'Tellurium', source: 'oxygen' },
+  { id: 'iodine', label: 'Iodine', source: 'helium' },
+  { id: 'xenon', label: 'Xenon', source: 'argon' },
+  { id: 'cesium', label: 'Cesium', source: 'potassium' },
+  { id: 'barium', label: 'Barium', source: 'calcium' },
+  { id: 'lanthanum', label: 'Lanthanum', source: 'scandium' },
+  { id: 'cerium', label: 'Cerium', source: 'boron' },
+  { id: 'praseodymium', label: 'Praseodymium', source: 'beryllium' },
+  { id: 'neodymium', label: 'Neodymium', source: 'nitrogen' },
+  { id: 'promethium', label: 'Promethium', source: 'neon' },
+  { id: 'samarium', label: 'Samarium', source: 'lithium' },
+  { id: 'europium', label: 'Europium', source: 'helium' },
+  { id: 'gadolinium', label: 'Gadolinium', source: 'oxygen' },
+  { id: 'terbium', label: 'Terbium', source: 'fluorine' },
+  { id: 'dysprosium', label: 'Dysprosium', source: 'cobalt' },
+  { id: 'holmium', label: 'Holmium', source: 'carbon' },
+  { id: 'erbium', label: 'Erbium', source: 'neon' },
+  { id: 'thulium', label: 'Thulium', source: 'argon' },
+  { id: 'ytterbium', label: 'Ytterbium', source: 'magnesium' },
+  { id: 'lutetium', label: 'Lutetium', source: 'aluminum' },
+  { id: 'hafnium', label: 'Hafnium', source: 'titanium' },
+  { id: 'tantalum', label: 'Tantalum', source: 'vanadium' },
+  { id: 'tungsten', label: 'Tungsten', source: 'carbon' },
+  { id: 'rhenium', label: 'Rhenium', source: 'chromium' },
+  { id: 'osmium', label: 'Osmium', source: 'carbon' },
+  { id: 'iridium', label: 'Iridium', source: 'cobalt' },
+  { id: 'platinum', label: 'Platinum', source: 'magnesium' },
+  { id: 'gold', label: 'Gold', source: 'boron' },
+  { id: 'mercury', label: 'Mercury', source: 'zinc' },
+  { id: 'thallium', label: 'Thallium', source: 'potassium' },
+  { id: 'lead', label: 'Lead', source: 'carbon' },
+  { id: 'bismuth', label: 'Bismuth', source: 'phosphorus' },
+  { id: 'polonium', label: 'Polonium', source: 'oxygen' },
+  { id: 'astatine', label: 'Astatine', source: 'fluorine' },
+  { id: 'radon', label: 'Radon', source: 'argon' },
+  { id: 'francium', label: 'Francium', source: 'lithium' },
+  { id: 'radium', label: 'Radium', source: 'calcium' },
+  { id: 'actinium', label: 'Actinium', source: 'scandium' },
+  { id: 'thorium', label: 'Thorium', source: 'titanium' },
+  { id: 'protactinium', label: 'Protactinium', source: 'vanadium' },
+  { id: 'uranium', label: 'Uranium', source: 'cobalt' },
+  { id: 'neptunium', label: 'Neptunium', source: 'phosphorus' },
+  { id: 'plutonium', label: 'Plutonium', source: 'lithium' },
+  { id: 'americium', label: 'Americium', source: 'helium' },
+  { id: 'curium', label: 'Curium', source: 'oxygen' },
+  { id: 'berkelium', label: 'Berkelium', source: 'boron' },
+  { id: 'californium', label: 'Californium', source: 'fluorine' },
+  { id: 'einsteinium', label: 'Einsteinium', source: 'nitrogen' },
+  { id: 'fermium', label: 'Fermium', source: 'iron' },
+  { id: 'mendelevium', label: 'Mendelevium', source: 'neon' },
+  { id: 'nobelium', label: 'Nobelium', source: 'argon' },
+  { id: 'lawrencium', label: 'Lawrencium', source: 'scandium' },
+  { id: 'rutherfordium', label: 'Rutherfordium', source: 'titanium' },
+  { id: 'dubnium', label: 'Dubnium', source: 'vanadium' },
+  { id: 'seaborgium', label: 'Seaborgium', source: 'chromium' },
+  { id: 'bohrium', label: 'Bohrium', source: 'manganese' },
+  { id: 'hassium', label: 'Hassium', source: 'iron' },
+  { id: 'meitnerium', label: 'Meitnerium', source: 'cobalt' },
+  { id: 'darmstadtium', label: 'Darmstadtium', source: 'nickel' },
+  { id: 'roentgenium', label: 'Roentgenium', source: 'copper' },
+  { id: 'copernicium', label: 'Copernicium', source: 'zinc' },
+  { id: 'nihonium', label: 'Nihonium', source: 'sodium' },
+  { id: 'flerovium', label: 'Flerovium', source: 'aluminum' },
+  { id: 'moscovium', label: 'Moscovium', source: 'phosphorus' },
+  { id: 'livermorium', label: 'Livermorium', source: 'sulfur' },
+  { id: 'tennessine', label: 'Tennessine', source: 'chlorine' },
+  { id: 'oganesson', label: 'Oganesson', source: 'argon' },
+];
+
+function registerAccentAliases(map: AccentMap) {
+  accentAliasDefinitions.forEach(({ id, label, source }) => {
+    const base = map[source];
+    if (!base) {
+      return;
+    }
+
+    map[id] = aliasAccent(base, id, label);
+  });
+}
+
+registerAccentAliases(lightAccents);
+registerAccentAliases(darkAccents);
+
+function resolveAccentId(unitId: string) {
+  return subjectAccentSources[unitId] ?? unitId;
+}
+
 export function getElementAccentPalette(
   unitId: string | undefined,
   theme: AppTheme
@@ -945,7 +1089,7 @@ export function getElementAccentPalette(
   }
 
   const accentMap = theme.mode === 'dark' ? darkAccents : lightAccents;
-  return accentMap[unitId] ?? buildFallback(theme);
+  return accentMap[unitId] ?? accentMap[resolveAccentId(unitId)] ?? buildFallback(theme);
 }
 
 export function getElementPaletteIds(mode: ThemeMode) {
@@ -958,42 +1102,19 @@ export function getElementBackdropPalette(
   accent?: ElementAccentPalette
 ): ElementBackdropPalette {
   if (!accent) {
-    return {
-      canvas: theme.colors.canvas,
-      gradientStart:
-        theme.mode === 'dark'
-          ? mixHex(theme.colors.canvas, theme.colors.accent, 0.06)
-          : mixHex(theme.colors.surfaceElevated, theme.colors.accent, 0.025),
-      gradientMid: theme.colors.canvas,
-      gradientEnd:
-        theme.mode === 'dark'
-          ? mixHex(theme.colors.canvasDeep, theme.colors.accent, 0.12)
-          : mixHex(theme.colors.canvasMuted, theme.colors.accentStrong, 0.035),
-      washStart: theme.mode === 'dark' ? withAlpha(theme.colors.accent, 0.08) : withAlpha(theme.colors.accent, 0.06),
-      washEnd: withAlpha(theme.colors.accent, 0),
-      divider: theme.colors.divider,
-    };
+    const baseTone =
+      theme.mode === 'dark'
+        ? mixHex(theme.colors.canvasDeep, theme.colors.accentSoft, 0.48)
+        : mixHex(theme.colors.canvasMuted, theme.colors.borderStrong, 0.44);
+
+    return buildTonalBackdrop(theme, baseTone, theme.colors.divider);
   }
 
   if (theme.mode === 'dark') {
-    return {
-      canvas: mixHex(theme.colors.canvas, accent.accent, 0.08),
-      gradientStart: mixHex(theme.colors.canvas, accent.accentStrong, 0.12),
-      gradientMid: mixHex(theme.colors.canvasMuted, accent.accent, 0.08),
-      gradientEnd: mixHex(theme.colors.canvasDeep, accent.accent, 0.16),
-      washStart: withAlpha(accent.accent, 0.12),
-      washEnd: withAlpha(accent.accent, 0),
-      divider: withAlpha(accent.accent, 0.22),
-    };
+    const baseTone = mixHex(theme.colors.canvasDeep, accent.line, 0.58);
+    return buildTonalBackdrop(theme, baseTone, withAlpha(accent.accent, 0.22));
   }
 
-  return {
-    canvas: mixHex(theme.colors.canvas, accent.accent, 0.05),
-    gradientStart: mixHex(theme.colors.surfaceElevated, accent.accent, 0.08),
-    gradientMid: mixHex(theme.colors.canvas, accent.accent, 0.05),
-    gradientEnd: mixHex(theme.colors.canvasMuted, accent.accentStrong, 0.09),
-    washStart: withAlpha(accent.accent, 0.08),
-    washEnd: withAlpha(accent.accent, 0),
-    divider: withAlpha(accent.accent, 0.18),
-  };
+  const baseTone = mixHex(theme.colors.canvasMuted, accent.line, 0.62);
+  return buildTonalBackdrop(theme, baseTone, withAlpha(accent.accent, 0.18));
 }

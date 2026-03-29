@@ -6,8 +6,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import type { Flashcard } from '@/content/schema';
+import type { FlashcardConfidence, Flashcard } from '@/content/schema';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { Button } from '@/components/Button';
 import type { ElementAccentPalette } from '@/theme/element-accents';
 
@@ -15,20 +16,31 @@ interface FlashcardDeckProps {
   cards: Flashcard[];
   reviewedCount: number;
   onReview: (flashcardId: string) => void;
+  getConfidence?: (flashcardId: string) => FlashcardConfidence | undefined;
+  onRateConfidence?: (flashcardId: string, confidence: FlashcardConfidence) => void;
   accent?: ElementAccentPalette;
 }
 
-export function FlashcardDeck({ cards, reviewedCount, onReview, accent }: FlashcardDeckProps) {
+export function FlashcardDeck({
+  cards,
+  reviewedCount,
+  onReview,
+  getConfidence,
+  onRateConfidence,
+  accent,
+}: FlashcardDeckProps) {
   const theme = useAppTheme();
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const rotation = useSharedValue(0);
+  const prefersReducedMotion = useReducedMotion();
   const card = cards[index];
+  const currentConfidence = getConfidence?.(card.id);
 
   useEffect(() => {
-    rotation.value = withTiming(0, { duration: 220 });
+    rotation.value = withTiming(0, { duration: prefersReducedMotion ? 0 : 220 });
     setFlipped(false);
-  }, [index, rotation]);
+  }, [index, prefersReducedMotion, rotation]);
 
   const frontStyle = useAnimatedStyle(() => ({
     transform: [{ perspective: 1200 }, { rotateY: `${rotation.value}deg` }],
@@ -45,7 +57,7 @@ export function FlashcardDeck({ cards, reviewedCount, onReview, accent }: Flashc
   function handleFlip() {
     const next = !flipped;
     setFlipped(next);
-    rotation.value = withTiming(next ? 180 : 0, { duration: 320 });
+    rotation.value = withTiming(next ? 180 : 0, { duration: prefersReducedMotion ? 0 : 320 });
     if (next) {
       onReview(card.id);
     }
@@ -82,6 +94,20 @@ export function FlashcardDeck({ cards, reviewedCount, onReview, accent }: Flashc
           {reviewedCount} reviewed locally
         </Text>
       </View>
+
+      {currentConfidence ? (
+        <Text
+          style={{
+            color: accent?.accentStrong ?? theme.colors.textSoft,
+            fontFamily: theme.fonts.mono,
+            fontSize: 11,
+            fontWeight: '700',
+            letterSpacing: 0.8,
+            textTransform: 'uppercase',
+          }}>
+          Current confidence: {currentConfidence}
+        </Text>
+      ) : null}
 
       <Pressable accessibilityRole="button" onPress={handleFlip}>
         <View style={{ minHeight: 320 }}>
@@ -204,6 +230,38 @@ export function FlashcardDeck({ cards, reviewedCount, onReview, accent }: Flashc
           accent={accent}
         />
       </View>
+
+      {flipped && onRateConfidence ? (
+        <View style={{ gap: theme.spacing.sm }}>
+          <Text
+            style={{
+              color: theme.colors.textSoft,
+              fontFamily: theme.fonts.mono,
+              fontSize: 11,
+              fontWeight: '700',
+              letterSpacing: 0.8,
+              textTransform: 'uppercase',
+            }}>
+            Rate recall confidence
+          </Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+            {([
+              { label: 'Hard', value: 'hard' },
+              { label: 'Unsure', value: 'unsure' },
+              { label: 'Easy', value: 'easy' },
+            ] as const).map((item) => (
+              <Button
+                key={item.value}
+                label={item.label}
+                variant={currentConfidence === item.value ? 'primary' : 'secondary'}
+                onPress={() => onRateConfidence(card.id, item.value)}
+                accent={accent}
+                style={{ flex: 1 }}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 }
