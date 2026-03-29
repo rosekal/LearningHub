@@ -1,9 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { usePathname, useRouter } from 'expo-router';
+import { usePathname, useRouter, type Href } from 'expo-router';
 import { Pressable, Text, type StyleProp, type ViewStyle } from 'react-native';
 
 import { useAppTheme } from '@/hooks/use-app-theme';
-import { useBreakpoints } from '@/hooks/use-breakpoints';
 import type { ElementAccentPalette } from '@/theme/element-accents';
 
 interface BackButtonProps {
@@ -12,13 +11,31 @@ interface BackButtonProps {
   accent?: ElementAccentPalette;
 }
 
+function getParentPath(pathname: string) {
+  const segments = pathname.split('/').filter(Boolean);
+
+  if (segments.length === 0) {
+    return null;
+  }
+
+  const lastSegment = segments[segments.length - 1];
+  const toolRoutes = new Set(['flashcards', 'quiz']);
+  const nextSegments = toolRoutes.has(lastSegment) ? segments.slice(0, -1) : segments.slice(0, -2);
+
+  if (nextSegments.length === 0) {
+    return '/';
+  }
+
+  return `/${nextSegments.join('/')}`;
+}
+
 export function BackButton({ label = 'Back', style, accent }: BackButtonProps) {
   const router = useRouter();
   const pathname = usePathname();
   const theme = useAppTheme();
-  const { isTablet } = useBreakpoints();
+  const parentPath = getParentPath(pathname);
 
-  const shouldShow = !isTablet && pathname !== '/' && router.canGoBack();
+  const shouldShow = parentPath !== null;
 
   if (!shouldShow) {
     return null;
@@ -29,7 +46,7 @@ export function BackButton({ label = 'Back', style, accent }: BackButtonProps) {
       accessibilityRole="button"
       accessibilityLabel="Go back"
       hitSlop={8}
-      onPress={() => router.back()}
+      onPress={() => router.replace(parentPath as Href)}
       style={({ hovered, pressed }) => [
         {
           minHeight: 44,
