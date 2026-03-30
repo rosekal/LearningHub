@@ -21,7 +21,7 @@ jobs:
     env:
       EXPO_BASE_URL: /${{ github.event.repository.name }}
       EXPO_NO_TELEMETRY: 1
-      NODE_OPTIONS: --max-old-space-size=8192
+      NODE_OPTIONS: --max-old-space-size=12288
     steps:
       - name: Checkout
         uses: actions/checkout@v4
