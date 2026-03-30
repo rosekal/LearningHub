@@ -33,7 +33,9 @@ export function AppShell({ children, hero, breadcrumbs, accent }: AppShellProps)
   const [mobileControlsWidth, setMobileControlsWidth] = useState(0);
   const backdrop = getElementBackdropPalette(theme, accent);
   const showGradient = isTablet;
-  const shellDivider = isTablet ? backdrop.divider : 'transparent';
+  const shellSurface = accent?.panel ?? theme.colors.surfaceElevated;
+  const shellDivider = isMobile ? accent?.line ?? theme.colors.borderStrong : backdrop.divider;
+  const shellDividerWidth = isMobile ? 2 : 1;
   const breadcrumbLabels = breadcrumbs?.map((item) => item.label).filter((label) => label !== 'Home') ?? [];
   const unitLabel = breadcrumbLabels[2];
   const trailingLabel = breadcrumbLabels[breadcrumbLabels.length - 1];
@@ -58,7 +60,7 @@ export function AppShell({ children, hero, breadcrumbs, accent }: AppShellProps)
   const mobileModeLabel = theme.mode === 'dark' ? 'Local / Dark' : 'Local / Light';
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: backdrop.canvas }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: shellSurface }}>
       <View style={{ flex: 1, backgroundColor: backdrop.canvas }}>
         {showGradient ? (
           <Svg
@@ -101,9 +103,9 @@ export function AppShell({ children, hero, breadcrumbs, accent }: AppShellProps)
             paddingHorizontal: gutter,
             paddingTop: isMobile ? theme.spacing.xs : theme.spacing.sm,
             paddingBottom: isMobile ? theme.spacing.xs : theme.spacing.md,
-            borderBottomWidth: 1,
+            borderBottomWidth: shellDividerWidth,
             borderBottomColor: shellDivider,
-            backgroundColor: 'transparent',
+            backgroundColor: shellSurface,
           }}>
           {isMobile ? (
             <View
